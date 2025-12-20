@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import prisma from "@/libs/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
+import { validateBody } from "@/libs/requestHelper";
 
 // zod type validation
 const fromRequest = z.object({
@@ -10,23 +11,9 @@ const fromRequest = z.object({
 });
 
 export async function POST(req: Request) {
-  // get the body and check if there is any body
-  let body;
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json(
-      { error: "Invalid or missing JSON body" },
-      { status: 400 },
-    );
-  }
-
-  // zod validation
-  const result = fromRequest.safeParse(body);
+  const result = await validateBody(req, fromRequest);
   if (!result.success) {
-    return Response.json({
-      message: z.treeifyError(result.error),
-    });
+    return Response.json({ error: result.error }, { status: 400 });
   }
 
   // hash password
