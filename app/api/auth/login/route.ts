@@ -3,7 +3,8 @@ import prisma from "@/libs/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
 import jwt from "jsonwebtoken";
-import { AUTH_CONFIG } from "./config";
+import { AUTH_CONFIG } from "@/libs/JWTConfig";
+import { validateBody } from "@/libs/requestHelper";
 
 const User = z.object({
   username: z.string().min(5),
@@ -11,23 +12,11 @@ const User = z.object({
 });
 
 export async function POST(req: Request) {
-  let body;
   let userDb;
 
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json(
-      { error: "JSON body hilang atau tidak valid" },
-      { status: 400 },
-    );
-  }
-
-  const result = User.safeParse(body);
+  const result = await validateBody(req, User);
   if (!result.success) {
-    return Response.json({
-      message: z.treeifyError(result.error),
-    });
+    return Response.json({ error: result.error }, { status: 400 });
   }
 
   try {

@@ -1,14 +1,38 @@
 import * as z from "zod";
 
-export async function checkMissingBody(req: any) {
-  let body;
+type ValidationResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: any };
+
+export async function validateBody<T>(
+  req: Request,
+  schema: z.Schema<T>,
+): Promise<ValidationResult<T>> {
+  let body: any;
+
   try {
     body = await req.json();
-  } catch {
-    return Response.json(
-      { error: "Invalid or missing JSON body" },
-      { status: 400 },
-    );
+  } catch (e) {
+    return {
+      success: false,
+      error: {
+        message: "Body Json hilang atau tidak valid",
+        code: "INVALID_JSON",
+      },
+    };
   }
-  return body;
+
+  const result = schema.safeParse(body);
+
+  if (result.success) {
+    return {
+      success: true,
+      data: result.data,
+    };
+  } else {
+    return {
+      success: false,
+      error: z.treeifyError(result.error),
+    };
+  }
 }
