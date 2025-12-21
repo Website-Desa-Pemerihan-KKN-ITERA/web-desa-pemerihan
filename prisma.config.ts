@@ -8,7 +8,7 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  engine: "classic",
+  // engine: "classic", // this default shit is error so i'll comment it lol
   datasource: {
     url: env("DATABASE_URL"),
   },
