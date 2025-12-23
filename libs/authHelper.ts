@@ -13,7 +13,7 @@ type ValidationResult =
   | { success: false; error: ValidationError };
 
 export async function validateJwtAuthHelper(
-  authHeader: string | null
+  authHeader: string | null,
 ): Promise<ValidationResult> {
   let token: string;
 
@@ -26,7 +26,7 @@ export async function validateJwtAuthHelper(
         code: "INVALID_TOKEN",
         status: 401,
       },
-    }
+    };
   } else {
     token = authHeader.split(" ")[1];
   }
@@ -44,7 +44,7 @@ export async function validateJwtAuthHelper(
           code: "TOKEN_EXPIRED",
           status: 401,
         },
-      }
+      };
     } else if (err instanceof jwt.JsonWebTokenError) {
       return {
         success: false,
@@ -53,7 +53,7 @@ export async function validateJwtAuthHelper(
           code: "INVALID_TOKEN",
           status: 401,
         },
-      }
+      };
     } else {
       return {
         success: false,
@@ -62,10 +62,10 @@ export async function validateJwtAuthHelper(
           code: "INTERNAL_SERVER_ERROR",
           status: 500,
         },
-      }
+      };
     }
   }
-  console.log(decodedUser)
+  console.log(decodedUser);
 
   return {
     success: true,

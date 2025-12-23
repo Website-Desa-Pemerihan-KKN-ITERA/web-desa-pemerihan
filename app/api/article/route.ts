@@ -32,7 +32,9 @@ export async function POST(req: Request) {
   }
 
   // validate the jwt token
-  const decodedJwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+  const decodedJwt = await validateJwtAuthHelper(
+    req.headers.get("authorization"),
+  );
   if (!decodedJwt.success) {
     return Response.json(
       { error: decodedJwt.error },
