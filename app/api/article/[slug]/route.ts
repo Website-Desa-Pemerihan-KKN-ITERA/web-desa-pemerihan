@@ -3,14 +3,6 @@ import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
 import { slugSchema } from "@/libs/strValidatorHelper";
 
-const Article = z.object({
-  title: z.string().min(5),
-  slug: z.string().min(5),
-  content: z.string().min(5),
-  featuredImageUrl: z.string().min(5),
-  additionalImages: z.array(z.string().min(5)),
-});
-
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ slug: string }> },
@@ -47,13 +39,5 @@ export async function GET(
     return Response.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
   }
 
-  const articleRes = Article.safeParse(articleDB);
-  if (!articleRes.success) {
-    return Response.json(
-      { error: "data artikel rusak atau tidak sesuai" },
-      { status: 500 },
-    );
-  }
-
-  return Response.json(articleRes.data);
+  return Response.json(articleDB);
 }
