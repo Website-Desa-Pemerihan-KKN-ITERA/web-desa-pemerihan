@@ -4,7 +4,7 @@ import * as z from "zod";
 import { JwtPayload } from "jsonwebtoken";
 import { validateBody } from "@/libs/requestHelper";
 import { validateJwtAuthHelper } from "@/libs/authHelper";
-import { minioClient, BUCKET_NAME } from "@/libs/minio";
+import { minioClient, minioConf } from "@/libs/minio";
 
 const Article = z.object({
   title: z.string().min(5),
@@ -97,7 +97,10 @@ export async function POST(req: Request) {
   }
 
   try {
-    await minioClient.statObject(BUCKET_NAME, result.data.featuredImageUrl);
+    await minioClient.statObject(
+      minioConf.BUCKET_NAME,
+      result.data.featuredImageUrl,
+    );
   } catch (err) {
     return { success: false, error: "File tidak ditemukan di storage server." };
   }

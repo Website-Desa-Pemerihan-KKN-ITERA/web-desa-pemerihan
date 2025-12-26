@@ -1,5 +1,5 @@
 "use server";
-import { minioClient, BUCKET_NAME } from "@/libs/minio";
+import { minioClient, minioConf } from "@/libs/minio";
 
 // ACTION 1: Mendapatkan URL Izin Upload
 export async function getPresignedUploadUrl(
@@ -8,21 +8,18 @@ export async function getPresignedUploadUrl(
 ) {
   try {
     // Pastikan bucket ada (Auto create jika belum ada - opsional)
-    const bucketExists = await minioClient.bucketExists(BUCKET_NAME);
+    const bucketExists = await minioClient.bucketExists(minioConf.BUCKET_NAME);
     if (!bucketExists) {
-      await minioClient.makeBucket(BUCKET_NAME, "us-east-1");
+      await minioClient.makeBucket(minioConf.BUCKET_NAME, "us-east-1");
     }
 
     // Buat nama file unik agar tidak tertimpa
     const objectName = `${Date.now()}-${originalName.replace(/\s/g, "-")}`;
 
-    // URL valid 5 menit
-    const expiry = 5 * 60;
-
     const presignedUrl = await minioClient.presignedPutObject(
-      BUCKET_NAME,
+      minioConf.BUCKET_NAME,
       objectName,
-      expiry,
+      minioConf.uploadExpiry,
     );
 
     return { success: true, url: presignedUrl, objectName };
@@ -40,15 +37,11 @@ export async function getPresignedDownloadUrl(objectName: string) {
       throw new Error("Nama file tidak boleh kosong");
     }
 
-    // Tentukan durasi validitas URL (dalam detik)
-    // Contoh: 1 jam (60 * 60). Default MinIO biasanya 7 hari.
-    const expiry = 60 * 60; 
-
     // Generate URL
     const presignedUrl = await minioClient.presignedGetObject(
-      BUCKET_NAME,
+      minioConf.BUCKET_NAME,
       objectName,
-      expiry
+      minioConf.downloadExpiry,
     );
 
     return { success: true, url: presignedUrl };
