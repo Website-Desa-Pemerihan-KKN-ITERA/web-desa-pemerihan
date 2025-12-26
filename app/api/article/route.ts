@@ -4,13 +4,18 @@ import * as z from "zod";
 import { JwtPayload } from "jsonwebtoken";
 import { validateBody } from "@/libs/requestHelper";
 import { validateJwtAuthHelper } from "@/libs/authHelper";
-import { minioClient, BUCKET_NAME } from "@/libs/minio";
+import { minioClient, minioConf } from "@/libs/minio";
 
 const Article = z.object({
   title: z.string().min(5),
   content: z.string().min(5),
   featuredImageUrl: z.string().min(5),
   // additionalImages: z.array(z.string().min(5)),
+});
+
+const listPagingSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
 });
 
 // interface/type for jwt payload (typescript things lol, they are so strict about type)
@@ -92,7 +97,10 @@ export async function POST(req: Request) {
   }
 
   try {
-    await minioClient.statObject(BUCKET_NAME, result.data.featuredImageUrl);
+    await minioClient.statObject(
+      minioConf.BUCKET_NAME,
+      result.data.featuredImageUrl,
+    );
   } catch (err) {
     return { success: false, error: "File tidak ditemukan di storage server." };
   }
@@ -144,4 +152,74 @@ export async function POST(req: Request) {
     { message: "Article berhasil diupload" },
     { status: 200 },
   );
+}
+
+export async function GET(req: Request) {
+  let articleList;
+  let dataCount = 0;
+  const { searchParams } = new URL(req.url);
+  const queryParams = {
+    page: searchParams.get("page"),
+    limit: searchParams.get("limit"),
+  };
+  const result = listPagingSchema.safeParse(queryParams);
+  if (!result.success) {
+    return Response.json(
+      { error: z.treeifyError(result.error) },
+      { status: 422 },
+    );
+  }
+  const { page, limit } = result.data;
+  const skip = (page - 1) * limit;
+
+  try {
+    [articleList, dataCount] = await prisma.$transaction([
+      prisma.article.findMany({
+        skip: skip,
+        take: limit,
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      prisma.article.count(),
+    ]);
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        default:
+          return Response.json(
+            { error: "Database error", err, code: err.code },
+            { status: 500 },
+          );
+      }
+    }
+  }
+
+  const totalPages = Math.ceil(dataCount / limit);
+
+  if (page > totalPages && dataCount > 0) {
+    return Response.json(
+      {
+        error: "Halaman tidak ditemukan",
+        message: `Hanya tersedia ${totalPages} halaman.`,
+        meta: {
+          page,
+          totalPages,
+        },
+      },
+      { status: 404 },
+    );
+  }
+
+  return Response.json({
+    data: articleList,
+    meta: {
+      page,
+      limit,
+      totalItems: dataCount,
+      totalPages,
+      hasNextPage: page < totalPages, // untuk mempermudah frontend nanti
+      hasPrevPage: page > 1, // misal ada tombol next/pref page gitu bisa pakai boolean dari sini
+    },
+  });
 }

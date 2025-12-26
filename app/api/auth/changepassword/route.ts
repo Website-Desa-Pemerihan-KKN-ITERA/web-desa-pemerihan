@@ -49,13 +49,16 @@ export async function PUT(req: Request) {
   }
   console.log(user);
 
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(result.data.password, salt);
+
   try {
     await prisma.user.update({
       where: {
         name: result.data.username,
       },
       data: {
-        password: result.data.newPassword,
+        password: hash,
       },
     });
   } catch {

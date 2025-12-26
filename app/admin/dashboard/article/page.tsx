@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import DashboardSidebar from "@/ui/dashboardSidebar"
+import DashboardSidebar from "@/ui/dashboardSidebar";
 
 export default function ArticleDashboard() {
   return (

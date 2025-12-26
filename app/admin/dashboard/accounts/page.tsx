@@ -1,5 +1,3 @@
-export default function Page(){
-	return(
-		<>belum dibuat</>
-	)
+export default function Page() {
+  return <>belum dibuat</>;
 }
