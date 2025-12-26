@@ -13,6 +13,11 @@ const Article = z.object({
   // additionalImages: z.array(z.string().min(5)),
 });
 
+const listPagingSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+});
+
 // interface/type for jwt payload (typescript things lol, they are so strict about type)
 interface MyJwtPayload extends JwtPayload {
   data: {
@@ -144,4 +149,20 @@ export async function POST(req: Request) {
     { message: "Article berhasil diupload" },
     { status: 200 },
   );
+}
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const queryParams = {
+    page: searchParams.get("page"),
+    limit: searchParams.get("limit"),
+  };
+  const result = listPagingSchema.safeParse(queryParams);
+  if (!result.success) {
+    return Response.json(
+      { error: z.treeifyError(result.error) },
+      { status: 422 },
+    );
+  }
+  const { page, limit } = result.data;
 }

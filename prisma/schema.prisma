@@ -28,5 +28,5 @@ model Article {
   slug      String   @unique
   content   String   @db.Text
   featuredImageUrl  String   @map("featured_image_url")
-  additionalImages  String?[] @map("additional_images")
+  additionalImages  String[] @map("additional_images")
 }
