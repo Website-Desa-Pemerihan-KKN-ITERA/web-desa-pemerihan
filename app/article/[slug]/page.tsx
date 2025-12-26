@@ -1,5 +1,7 @@
+// "use client";
 import { Prisma } from "@/generated/prisma/client";
 import prisma from "@/libs/prisma";
+import { getPresignedDownloadUrl } from "@/libs/minioAction";
 
 export default async function Page({
   params,
@@ -8,6 +10,7 @@ export default async function Page({
 }) {
   const { slug } = await params;
   let article
+  let imageUrl = null; // Variable untuk menampung URL gambar
 
   try {
     article = await prisma.article.findUniqueOrThrow({
@@ -16,6 +19,14 @@ export default async function Page({
       },
     });
     console.log("render: ", article)
+
+    if (article.featuredImageUrl) {
+      const result = await getPresignedDownloadUrl(article.featuredImageUrl);
+      if (result.success) {
+        imageUrl = result.url;
+      }
+    }
+    console.log(imageUrl)
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       switch (err.code) {
@@ -35,7 +46,10 @@ export default async function Page({
             dangerouslySetInnerHTML={{ __html: article?.title ?? "" }}
           />
         </h1>
-
+        {imageUrl ? (
+        <img src={imageUrl}/>
+        ): (<div>gk ada gambar</div>)
+        }
         {/* ini merender content artikel dari db sebagai html, rentan xss, jadi hati-hati*/}
         <div
           dangerouslySetInnerHTML={{ __html: article?.content ?? "" }}

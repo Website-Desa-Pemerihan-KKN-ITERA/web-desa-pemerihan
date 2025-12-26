@@ -2,7 +2,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
-import { getPresignedUploadUrl } from "@/app/action";
+import { getPresignedUploadUrl } from "@/libs/minioAction";
 import { IoSend } from "react-icons/io5";
 
 // kode ini gunanya biar react quill gk dirender secara ssr di development biar gk error

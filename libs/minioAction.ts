@@ -31,3 +31,29 @@ export async function getPresignedUploadUrl(
     return { success: false, error: "Gagal generate URL" };
   }
 }
+
+// ACTION 2: Mendapatkan URL Izin Download (Read)
+export async function getPresignedDownloadUrl(objectName: string) {
+  try {
+    // Validasi input sederhana
+    if (!objectName) {
+      throw new Error("Nama file tidak boleh kosong");
+    }
+
+    // Tentukan durasi validitas URL (dalam detik)
+    // Contoh: 1 jam (60 * 60). Default MinIO biasanya 7 hari.
+    const expiry = 60 * 60; 
+
+    // Generate URL
+    const presignedUrl = await minioClient.presignedGetObject(
+      BUCKET_NAME,
+      objectName,
+      expiry
+    );
+
+    return { success: true, url: presignedUrl };
+  } catch (error) {
+    console.error("Minio Download Error:", error);
+    return { success: false, error: "Gagal mengambil file" };
+  }
+}
