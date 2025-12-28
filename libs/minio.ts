@@ -1,11 +1,17 @@
-import * as Minio from "minio";
+import { S3Client } from "@aws-sdk/client-s3";
 
-export const minioClient = new Minio.Client({
-  endPoint: process.env.MINIO_ENDPOINT || "localhost",
-  port: parseInt(process.env.MINIO_PORT || "9000"),
-  useSSL: process.env.MINIO_USE_SSL === "true",
-  accessKey: process.env.MINIO_ACCESS_KEY!,
-  secretKey: process.env.MINIO_SECRET_KEY!,
+// found this way from gemini lol, the aws sdk v3 docs is kinda separated and modular
+const protocol = process.env.MINIO_USE_SSL === "true" ? "https" : "http";
+const endpoint = `${protocol}://${process.env.MINIO_ENDPOINT || "localhost"}:${process.env.MINIO_PORT || "9000"}`;
+
+export const s3Client = new S3Client({
+  region: "us-east-1",
+  endpoint: endpoint,
+  credentials: {
+    accessKeyId: process.env.MINIO_ACCESS_KEY!,
+    secretAccessKey: process.env.MINIO_SECRET_KEY!,
+  },
+  forcePathStyle: true, // biar style nya dipaksa gaya minio, bukan gaya aws
 });
 
 export const minioConf = {
