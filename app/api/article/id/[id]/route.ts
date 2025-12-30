@@ -13,12 +13,13 @@ const ArticleSchema = z.object({
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   let oldArticle;
   let newSlug;
 
-  const articleId = parseInt(params.id);
+  const articleId = parseInt(id);
   if (isNaN(articleId)) {
     return Response.json({ error: "ID Artikel tidak valid" }, { status: 400 });
   }
@@ -72,32 +73,31 @@ export async function PUT(
         { status: 409 },
       );
     }
+  }
+  try {
+    const updatedArticle = await prisma.article.update({
+      where: { id: articleId },
+      data: {
+        title: result.data.title,
+        content: result.data.content,
+        slug: newSlug,
+        featuredImageUrl:
+          result.data.featuredImageUrl || oldArticle.featuredImageUrl,
+      },
+    });
 
-    try {
-      const updatedArticle = await prisma.article.update({
-        where: { id: articleId },
-        data: {
-          title: result.data.title,
-          content: result.data.content,
-          slug: newSlug,
-          featuredImageUrl:
-            result.data.featuredImageUrl || oldArticle.featuredImageUrl,
-        },
-      });
-
-      return Response.json({
-        message: "Update berhasil",
-        data: updatedArticle,
-      });
-    } catch (err) {
-      if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        switch (err.code) {
-          default:
-            return Response.json(
-              { error: "Database nya error", code: err.code },
-              { status: 500 },
-            );
-        }
+    return Response.json({
+      message: "Update berhasil",
+      data: updatedArticle,
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        default:
+          return Response.json(
+            { error: "Database nya error", code: err.code },
+            { status: 500 },
+          );
       }
     }
   }
