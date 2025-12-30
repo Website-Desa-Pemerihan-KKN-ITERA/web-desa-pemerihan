@@ -102,3 +102,50 @@ export async function PUT(
     }
   }
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+
+  const articleId = parseInt(id);
+  if (isNaN(articleId)) {
+    return Response.json({ error: "ID Artikel tidak valid" }, { status: 400 });
+  }
+
+  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+  if (!jwt.success) {
+    return Response.json({ error: jwt.error }, { status: jwt.error.status });
+  }
+
+  try {
+    const deletedArticle = await prisma.article.delete({
+      where: { id: articleId },
+    });
+
+    return Response.json({
+      message: "Artikel berhasil dihapus",
+      data: deletedArticle,
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case "P2025":
+          return Response.json(
+            { error: "Artikel tidak ditemukan" },
+            { status: 404 },
+          );
+        default:
+          return Response.json(
+            { error: "Database nya error", code: err.code },
+            { status: 500 },
+          );
+      }
+    }
+    return Response.json(
+      { error: "Terjadi kesalahan internal server" },
+      { status: 500 },
+    );
+  }
+}
