@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { CiTrash } from "react-icons/ci";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { timeFormatter } from "@/libs/timeFormatterToID";
+import { RiExpandDiagonalLine } from "react-icons/ri";
 
 export default function ArticleDashboard() {
   const [articles, setArticles] = useState<any>([]);
@@ -71,6 +72,12 @@ export default function ArticleDashboard() {
               </div>
 
               <div className="flex gap-1 text-sm font-medium">
+                <Link
+                  href={`/article/${article.slug}`}
+                  className="px-3 py-1 text-xl text-[#40a02b] hover:bg-green-50 rounded border border-transparent"
+                >
+                  <RiExpandDiagonalLine />
+                </Link>
                 <Link
                   href={`/admin/dashboard/article/editarticle/${article.id}`}
                   className="px-3 py-1 text-xl text-[#1e66f5] hover:bg-blue-50 rounded border border-transparent"
