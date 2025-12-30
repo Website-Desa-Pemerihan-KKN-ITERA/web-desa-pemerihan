@@ -14,7 +14,7 @@ export const s3Client = new S3Client({
   forcePathStyle: true, // biar style nya dipaksa gaya minio, bukan gaya aws
 });
 
-export const minioConf = {
+export const s3Conf = {
   BUCKET_NAME: process.env.MINIO_BUCKET_NAME || "uploads",
   downloadExpiry: 1 * (60 * 60),
   uploadExpiry: 0.12 * (60 * 60), // 5 menit, gw buat gini biar standar aja formatnya jadi cuma perlu ubah digit jam di depannya

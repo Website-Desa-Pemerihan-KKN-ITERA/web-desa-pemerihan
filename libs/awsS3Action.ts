@@ -1,6 +1,6 @@
 "use server";
 import { randomUUID } from "crypto";
-import { s3Client, minioConf } from "@/libs/awsS3";
+import { s3Client, s3Conf } from "@/libs/awsS3";
 import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -10,28 +10,28 @@ export async function getPresignedUploadUrl(
 ) {
   try {
     // Pastikan bucket ada (Auto create jika belum ada - opsional)
-    // const bucketExists = await minioClient.bucketExists(minioConf.BUCKET_NAME);
+    // const bucketExists = await s3Client.bucketExists(minioConf.BUCKET_NAME);
     // if (!bucketExists) {
-    //   await minioClient.makeBucket(minioConf.BUCKET_NAME, "us-east-1");
+    //   await s3Client.makeBucket(minioConf.BUCKET_NAME, "us-east-1");
     // }
-    
+
     // making object name from random uuid
-    const extension = originalName.split('.').pop();
+    const extension = originalName.split(".").pop();
     const objectName = `${randomUUID()}.${extension}`;
 
     const command = new PutObjectCommand({
-      Bucket: minioConf.BUCKET_NAME,
+      Bucket: s3Conf.BUCKET_NAME,
       Key: objectName,
       ContentType: type,
     });
 
     const presignedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: minioConf.uploadExpiry,
+      expiresIn: s3Conf.uploadExpiry,
     });
 
     return { success: true, url: presignedUrl, objectName };
   } catch (error) {
-    console.error("Minio Error:", error);
+    console.error("s3 Error:", error);
     return { success: false, error: "Gagal generate URL" };
   }
 }
@@ -43,17 +43,17 @@ export async function getPresignedDownloadUrl(objectName: string) {
     }
 
     const command = new GetObjectCommand({
-      Bucket: minioConf.BUCKET_NAME,
+      Bucket: s3Conf.BUCKET_NAME,
       Key: objectName,
     });
 
     const presignedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: minioConf.downloadExpiry,
+      expiresIn: s3Conf.downloadExpiry,
     });
 
     return { success: true, url: presignedUrl };
   } catch (error) {
-    console.error("Minio Download Error:", error);
+    console.error("s3 Download Error:", error);
     return { success: false, error: "Gagal mengambil file" };
   }
 }
