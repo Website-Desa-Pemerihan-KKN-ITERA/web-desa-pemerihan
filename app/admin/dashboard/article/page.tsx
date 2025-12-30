@@ -5,16 +5,19 @@ import { PiArticleMedium } from "react-icons/pi";
 import { useEffect, useState } from "react";
 
 export default function ArticleDashboard() {
-  const [articles, setArticles] = useState<any>([])
+  const [articles, setArticles] = useState<any>([]);
 
   const getArticleData = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/article?page=1&limit=10", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      });
+      const res = await fetch(
+        "http://localhost:3000/api/article?page=1&limit=10",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
       if (!res.ok) {
         throw new Error("Request failed");
@@ -22,7 +25,7 @@ export default function ArticleDashboard() {
 
       const data = await res.json();
       console.log(data);
-      setArticles(data.data)
+      setArticles(data.data);
 
       localStorage.setItem("auth", data.token);
     } catch (err) {
@@ -31,7 +34,7 @@ export default function ArticleDashboard() {
   };
 
   useEffect(() => {
-    getArticleData()
+    getArticleData();
   }, []);
 
   return (
@@ -54,7 +57,9 @@ export default function ArticleDashboard() {
           <div key={article.id} className="flex flex-col gap-4 mb-5">
             <div className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
               <div>
-                <p className="text-gray-700 truncate max-w-md font-bold">{article.title}</p>
+                <p className="text-gray-700 truncate max-w-md font-bold">
+                  {article.title}
+                </p>
               </div>
 
               <div className="flex gap-3 text-sm font-medium">

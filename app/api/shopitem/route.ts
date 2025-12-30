@@ -52,7 +52,10 @@ export async function POST(req: Request) {
   });
 
   if (!userExists) {
-    return Response.json({ error: "User tidak valid / tidak ditemukan" }, { status: 404 });
+    return Response.json(
+      { error: "User tidak valid / tidak ditemukan" },
+      { status: 404 },
+    );
   }
 
   // push new item to db
@@ -87,9 +90,5 @@ export async function POST(req: Request) {
   }
 
   // finally send success response
-  return Response.json(
-    { message: "Item berhasil diupload" },
-    { status: 200 },
-  );
-
+  return Response.json({ message: "Item berhasil diupload" }, { status: 200 });
 }

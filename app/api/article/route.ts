@@ -55,7 +55,10 @@ export async function POST(req: Request) {
   });
 
   if (!userExists) {
-    return Response.json({ error: "User tidak valid / tidak ditemukan" }, { status: 404 });
+    return Response.json(
+      { error: "User tidak valid / tidak ditemukan" },
+      { status: 404 },
+    );
   }
 
   // try {
