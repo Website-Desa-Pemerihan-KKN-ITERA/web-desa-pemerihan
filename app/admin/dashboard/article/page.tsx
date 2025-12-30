@@ -38,15 +38,15 @@ export default function ArticleDashboard() {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-dvh bg-white">
+    <div className="flex flex-col md:flex-row min-h-dvh bg-[#FFFFFF]">
       <DashboardSidebar />
 
       <main className="flex-1 p-5 md:p-8 overflow-x-hidden">
-        <div className="font-bold text-xl mb-6">Article</div>
+        <div className="font-bold text-4xl text-[#333446] mb-6">Artikel</div>
 
         <div className="mb-6 flex">
           <Link prefetch={false} href="/admin/dashboard/article/addarticle">
-            <span className="flex items-center gap-2 rounded-2xl py-2 px-4 bg-blue-50 text-blue-700 font-bold cursor-pointer hover:bg-blue-100 text-sm transition-colors">
+            <span className="flex items-center gap-2 rounded-2xl py-2 px-4 bg-[#F0F0F0] text-[#333446] font-bold cursor-pointer hover:bg-[#ACADAD] text-sm transition-colors">
               <PiArticleMedium className="text-xl" />
               Tulis Artikel Baru
             </span>
@@ -65,11 +65,11 @@ export default function ArticleDashboard() {
               <div className="flex gap-3 text-sm font-medium">
                 <Link
                   href={`/admin/dashboard/article/editarticle/${article.id}`}
-                  className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded border border-transparent hover:border-blue-100"
+                  className="px-3 py-1 text-[#1e66f5] hover:bg-blue-50 rounded border border-transparent"
                 >
                   Edit
                 </Link>
-                <button className="px-3 py-1 text-red-600 hover:bg-red-50 rounded">
+                <button className="px-3 py-1 text-[#e64553] hover:bg-red-50 rounded">
                   Hapus
                 </button>
               </div>
