@@ -58,12 +58,15 @@ export async function POST(req: Request) {
     );
   }
 
+  // generate slug from title
+  let finalSlug = generateSlug(result.data.name);
+
   // push new item to db
   try {
     await prisma.shopItems.create({
       data: {
         name: result.data.name,
-        slug: "",
+        slug: finalSlug,
         price: result.data.price,
         contact: result.data.contact,
         description: result.data.description,
