@@ -22,6 +22,9 @@ interface MyJwtPayload extends JwtPayload {
   };
 }
 
+//////////
+// POST //
+//////////
 export async function POST(req: Request) {
   // validate body
   const result = await validateBody(req, ShopItem);
@@ -79,7 +82,7 @@ export async function POST(req: Request) {
       switch (err.code) {
         case "P2002": // unique constraint
           return Response.json(
-            { error: "Username already exists" },
+            { error: "Item name already exists" },
             { status: 409 },
           );
 
@@ -96,15 +99,14 @@ export async function POST(req: Request) {
   return Response.json({ message: "Item berhasil diupload" }, { status: 200 });
 }
 
-/////////
-// GET //
-/////////
-
 const listPagingSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
 });
 
+/////////
+// GET //
+/////////
 export async function GET(req: Request) {
   let articleList;
   let dataCount = 0;
@@ -132,7 +134,7 @@ export async function GET(req: Request) {
           createdAt: "desc",
         },
       }),
-      prisma.article.count(),
+      prisma.shopItems.count(),
     ]);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
