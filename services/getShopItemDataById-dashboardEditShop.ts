@@ -4,7 +4,7 @@ import { Prisma } from "@/generated/prisma/client";
 
 type ShopItemResult = [Prisma.ShopItemsGetPayload<{}> | null, string | null];
 
-export async function getShopItemData(id: number): Promise<ShopItemResult> {
+export async function getShopItemDataById(id: number): Promise<ShopItemResult> {
   try {
     const itemShop = await prisma.shopItems.findUnique({
       where: { id: id },

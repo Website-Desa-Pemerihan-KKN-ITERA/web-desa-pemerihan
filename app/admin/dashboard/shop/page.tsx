@@ -6,104 +6,104 @@ import { useEffect, useState } from "react";
 import { CiTrash } from "react-icons/ci";
 import { timeFormatter } from "@/libs/timeFormatterToID";
 import { RiExpandDiagonalLine } from "react-icons/ri";
-// import { MdOutlineModeEdit } from "react-icons/md";
+import { MdOutlineModeEdit } from "react-icons/md";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
-  const [shopItem, setShopItem] = useState<any>([]);
-  const router = useRouter();
+    const [shopItem, setShopItem] = useState<any>([]);
+    const router = useRouter();
 
-  const getShopData = async () => {
-    const token = localStorage.getItem("auth");
-    try {
-      const res = await fetch(
-        "http://localhost:3000/api/shopitem?page=1&limit=10",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+    const getShopData = async () => {
+        const token = localStorage.getItem("auth");
+        try {
+            const res = await fetch(
+                "http://localhost:3000/api/shopitem?page=1&limit=10",
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
 
-      const data = await res.json();
+            const data = await res.json();
 
-      // if success != true, fallback user to login page
-      if (!data.success) {
-        router.push("/auth/login");
-        return;
-      }
+            // if success != true, fallback user to login page
+            if (!data.success) {
+                router.push("/auth/login");
+                return;
+            }
 
-      // error handling
-      if (!res.ok) {
-        throw new Error("Request failed");
-      }
+            // error handling
+            if (!res.ok) {
+                throw new Error("Request failed");
+            }
 
-      setShopItem(data.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+            setShopItem(data.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
-  useEffect(() => {
-    getShopData();
-  }, []);
+    useEffect(() => {
+        getShopData();
+    }, []);
 
-  return (
-    <div className="flex flex-col md:flex-row min-h-dvh bg-white">
-      <DashboardSidebar />
+    return (
+        <div className="flex flex-col md:flex-row min-h-dvh bg-white">
+            <DashboardSidebar />
 
-      <main className="flex-1 p-5 md:p-8 overflow-x-hidden">
-        <div className="font-bold text-4xl text-[#333446] mb-6">Toko</div>
+            <main className="flex-1 p-5 md:p-8 overflow-x-hidden">
+                <div className="font-bold text-4xl text-[#333446] mb-6">Toko</div>
 
-        <div className="mb-6 flex">
-          <Link prefetch={false} href="/admin/dashboard/shop/addItem">
-            <span className="flex items-center gap-2 rounded-2xl py-2 px-4 bg-[#F0F0F0] text-[#333446] font-bold cursor-pointer hover:bg-[#ACADAD] text-sm transition-colors">
-              <MdAddBusiness className="text-xl" />
-              Tambah Barang di Toko
-            </span>
-          </Link>
+                <div className="mb-6 flex">
+                    <Link prefetch={false} href="/admin/dashboard/shop/addItem">
+                        <span className="flex items-center gap-2 rounded-2xl py-2 px-4 bg-[#F0F0F0] text-[#333446] font-bold cursor-pointer hover:bg-[#ACADAD] text-sm transition-colors">
+                            <MdAddBusiness className="text-xl" />
+                            Tambah Barang di Toko
+                        </span>
+                    </Link>
+                </div>
+
+                {shopItem.map((item: any) => (
+                    <div key={item.id} className="flex flex-col gap-4 mb-5">
+                        <div className="border border-[#ACACAF] rounded-2xl px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <p className="text-gray-700 truncate max-w-md text-xl font-bold">
+                                    {item.name}
+                                </p>
+                                <p className="text-gray-700 truncate max-w-md text-sm">
+                                    Dibuat pada:
+                                </p>
+                                <p className="text-gray-700 truncate max-w-md text-sm">
+                                    {timeFormatter(item.createdAt)}
+                                </p>
+                            </div>
+
+                            <div className="flex gap-1 text-sm font-medium">
+                                <Link
+                                    href={`/shop/${item.slug}`}
+                                    className="px-3 py-1 text-xl text-[#40a02b] hover:bg-green-50 rounded border border-transparent"
+                                >
+                                    <RiExpandDiagonalLine />
+                                </Link>
+                                {
+                                    <Link
+                                        href={`/admin/dashboard/shop/edititem/${item.id}`}
+                                        className="px-3 py-1 text-xl text-[#1e66f5] hover:bg-blue-50 rounded border border-transparent"
+                                    >
+                                        <MdOutlineModeEdit />
+                                    </Link>
+                                }
+                                <button className="px-3 py-1 text-xl text-[#e64553] hover:bg-red-50 rounded">
+                                    <CiTrash />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </main>
         </div>
-
-        {shopItem.map((item: any) => (
-          <div key={item.id} className="flex flex-col gap-4 mb-5">
-            <div className="border border-[#ACACAF] rounded-2xl px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <p className="text-gray-700 truncate max-w-md text-xl font-bold">
-                  {item.name}
-                </p>
-                <p className="text-gray-700 truncate max-w-md text-sm">
-                  Dibuat pada:
-                </p>
-                <p className="text-gray-700 truncate max-w-md text-sm">
-                  {timeFormatter(item.createdAt)}
-                </p>
-              </div>
-
-              <div className="flex gap-1 text-sm font-medium">
-                <Link
-                  href={`/shop/${item.slug}`}
-                  className="px-3 py-1 text-xl text-[#40a02b] hover:bg-green-50 rounded border border-transparent"
-                >
-                  <RiExpandDiagonalLine />
-                </Link>
-                {/*
-                <Link
-                  href={`/admin/dashboard/article/editarticle/${article.id}`}
-                  className="px-3 py-1 text-xl text-[#1e66f5] hover:bg-blue-50 rounded border border-transparent"
-                >
-                  <MdOutlineModeEdit />
-                </Link>
-                */}
-                <button className="px-3 py-1 text-xl text-[#e64553] hover:bg-red-50 rounded">
-                  <CiTrash />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </main>
-    </div>
-  );
+    );
 }
