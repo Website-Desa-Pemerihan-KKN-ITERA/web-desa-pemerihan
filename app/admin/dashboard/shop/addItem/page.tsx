@@ -11,8 +11,9 @@ export default function Page() {
   const [price, setPrice] = useState(0);
   const [contact, setContact] = useState("");
   const [description, setDescription] = useState("");
-  const [file, setFile] = useState<File[]>([]);
+  const [file, setFile] = useState<(File | null)[]>([null, null, null, null, null]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const howMuchImages = [0, 1, 2, 3, 4]
 
   const handleAddArticle = async (objectName: string) => {
     try {
@@ -45,15 +46,14 @@ export default function Page() {
       console.error(err);
     }
   };
-  console.log(file);
 
   const handleUpload = async () => {
     if (file.length == 0) return;
 
     try {
       const { success, url, objectName, error } = await getPresignedUploadUrl(
-        file[0].name,
-        file[0].type,
+        file[0]!.name,
+        file[0]!.type,
       );
 
       if (!success || !url || !objectName) {
@@ -65,7 +65,7 @@ export default function Page() {
         method: "PUT",
         body: file[0],
         headers: {
-          "Content-Type": file[0].type,
+          "Content-Type": file[0]!.type,
         },
       });
 
@@ -83,6 +83,7 @@ export default function Page() {
   const handleCustomClick = () => {
     fileInputRef.current?.click();
   };
+  console.log(file)
 
   return (
     <>
@@ -120,45 +121,51 @@ export default function Page() {
           />
         </div>
 
-        {/* Input gambar (hidden)*/}
-        <div className="flex items-center gap-5">
-          <p>Gambar:</p>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={(e) => {
-              const selectedFile = e.target.files?.[0];
-              if (selectedFile) {
-                setFile([selectedFile]);
-              }
-            }}
-            className="hidden"
-          />
-        </div>
+        <div className="flex items-start gap-2">
+          <span>Gambar: </span>
+          {howMuchImages.map(i =>
+            <div key={i}>
+              {/* Input gambar (hidden)*/}
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={(e) => {
+                    const selectedFile = e.target.files?.[0];
+                    if (selectedFile) {
+                      setFile([]);
+                    }
+                  }}
+                  className="hidden"
+                />
+              </div>
 
-        {/* Custom input image button */}
-        {!file[0] ? (
-          <div className="flex">
-            <div
-              className="flex items-center justify-center text-sm text-slate-400
+              {/* the real input gambar*/}
+              {!file[i] ? (
+                <div className="flex">
+                  <div
+                    className="flex items-center justify-center text-sm text-slate-400
               bg-slate-50 w-30 h-30 rounded-2xl border border-slate-200 cursor-pointer
               mb-5 flex-col hover:bg-slate-100 transition"
-              onClick={handleCustomClick}
-            >
-              <LuImagePlus className="text-2xl mb-2" />
-              <span>Tambah</span>
-            </div>
-          </div>
-        ) : (
-          <img
-            src={URL.createObjectURL(file[0])}
-            onClick={handleCustomClick}
-            className="flex items-center justify-center text-sm text-slate-400
+                    onClick={handleCustomClick}
+                  >
+                    <LuImagePlus className="text-2xl mb-2" />
+                    <span>Tambah</span>
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={URL.createObjectURL(file[i]!)}
+                  onClick={handleCustomClick}
+                  className="flex items-center justify-center text-sm text-slate-400
             bg-slate-50 w-30 h-30 rounded-2xl border border-slate-200 cursor-pointer
             mb-5 flex-col hover:bg-slate-100 transition"
-          />
-        )}
+                />
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Input deskripsi */}
         <div className="flex gap-5 mb-5 flex-col md:flex-row">
