@@ -14,8 +14,12 @@ export default async function Page({
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Produk Tidak Ditemukan</h2>
-          <p className="text-gray-500">Maaf, data produk tidak tersedia di database.</p>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Produk Tidak Ditemukan
+          </h2>
+          <p className="text-gray-500">
+            Maaf, data produk tidak tersedia di database.
+          </p>
         </div>
       </div>
     );
@@ -32,9 +36,7 @@ export default async function Page({
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
       {/* Container utama agar tidak terlalu lebar di layar besar */}
       <div className="mx-auto max-w-4xl bg-white rounded-xl overflow-hidden border border-gray-100">
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
-
           {/* Kolom Kiri: Gambar */}
           <div className="flex flex-col gap-4">
             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
@@ -46,10 +48,23 @@ export default async function Page({
                 />
               ) : (
                 <div className="text-gray-400 flex flex-col items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
-                  <span className="text-sm font-medium">Gambar tidak tersedia</span>
+                  <span className="text-sm font-medium">
+                    Gambar tidak tersedia
+                  </span>
                 </div>
               )}
             </div>
@@ -80,10 +95,10 @@ export default async function Page({
             <div className="mt-6 border-t border-gray-100 pt-6">
               <h3 className="text-sm font-medium text-gray-900">Deskripsi</h3>
               <div className="mt-2 prose prose-sm text-gray-600 whitespace-pre-line leading-relaxed">
-                {shopItem.description || "Tidak ada deskripsi untuk produk ini."}
+                {shopItem.description ||
+                  "Tidak ada deskripsi untuk produk ini."}
               </div>
             </div>
-
           </div>
         </div>
       </div>
