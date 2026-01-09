@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { CiTrash } from "react-icons/ci";
 import { timeFormatter } from "@/libs/timeFormatterToID";
 import { RiExpandDiagonalLine } from "react-icons/ri";
-// import { MdOutlineModeEdit } from "react-icons/md";
+import { MdOutlineModeEdit } from "react-icons/md";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
@@ -88,14 +88,12 @@ export default function Page() {
                 >
                   <RiExpandDiagonalLine />
                 </Link>
-                {/*
                 <Link
-                  href={`/admin/dashboard/article/editarticle/${article.id}`}
+                  href={`/admin/dashboard/shop/edititem/${item.id}`}
                   className="px-3 py-1 text-xl text-[#1e66f5] hover:bg-blue-50 rounded border border-transparent"
                 >
                   <MdOutlineModeEdit />
                 </Link>
-                */}
                 <button className="px-3 py-1 text-xl text-[#e64553] hover:bg-red-50 rounded">
                   <CiTrash />
                 </button>

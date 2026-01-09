@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import { getPresignedUploadUrl } from "@/libs/awsS3Action";
 import { IoSend } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 // kode ini gunanya biar react quill gk dirender secara ssr di development biar gk error
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -12,6 +13,7 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 });
 
 export default function Page() {
+  const router = useRouter();
   const [value, setValue] = useState("");
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -39,6 +41,7 @@ export default function Page() {
       }
 
       alert("Berhasil terkirim");
+      router.push("/admin/dashboard/article");
     } catch (err) {
       alert("Gagal terkirim");
       console.error(err);

@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function page() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -27,6 +29,7 @@ export default function page() {
       console.log(data.token);
 
       localStorage.setItem("auth", data.token);
+      router.push("/admin/dashboard/article");
     } catch (err) {
       console.error(err);
     }
@@ -56,11 +59,11 @@ export default function page() {
           />
 
           <div className="flex flex-col justify-around">
-            <Link href="/auth/login">
-              <div className="justify-end flex text-blue-400 text-sm">
-                Sudah punya akun?
-              </div>
-            </Link>
+            <div className="justify-end flex text-blue-400 text-sm">
+              <Link href="/auth/login">
+                <span>Sudah punya akun?</span>
+              </Link>
+            </div>
             <div className="flex justify-center mt-2">
               <div
                 className="bg-slate-200 px-4 py-1 rounded-xl border border-slate-300 cursor-pointer hover:bg-slate-300"
