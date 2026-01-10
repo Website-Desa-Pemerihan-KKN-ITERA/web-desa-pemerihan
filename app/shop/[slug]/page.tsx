@@ -37,8 +37,7 @@ export default async function Page({
       <div className="mx-auto max-w-4xl bg-white rounded-xl overflow-hidden border border-gray-100">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
           {/* Kolom Kiri: Gambar */}
-
-          <ProductGallery images={imagesUrl} productName={shopItem.name} />
+          <ProductGallery images={imagesUrl as string[]} productName={shopItem.name} />
 
           {/* Kolom Kanan: Detail Produk */}
           <div className="flex flex-col">
