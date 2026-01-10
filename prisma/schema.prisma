@@ -39,6 +39,6 @@ model ShopItems {
   slug      String   @unique
   contact   String
   description       String   @db.Text
-  featuredImageUrl  String   @map("featured_image_url")
-  additionalImages  String[] @map("additional_images")
+  ImagesUrl  String[] @map("images")
+  // featuredImageUrl  String   @map("featured_image_url")
 }
