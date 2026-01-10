@@ -6,7 +6,7 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [shopItem, imageUrl] = await getShopItemData(slug);
+  const [shopItem, imagesUrl] = await getShopItemData(slug);
 
   // Perbaikan: Jangan return Response.json di dalam Page Component (ini untuk API route).
   // Sebaiknya return UI Error atau notFound().
@@ -15,10 +15,10 @@ export default async function Page({
       <div className="flex h-[50vh] w-full items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800">
-            Produk Tidak Ditemukan
+            Produk Tidak Ditemukan atau bermasalah
           </h2>
           <p className="text-gray-500">
-            Maaf, data produk tidak tersedia di database.
+            Maaf, data produk tidak tersedia.
           </p>
         </div>
       </div>
@@ -40,9 +40,9 @@ export default async function Page({
           {/* Kolom Kiri: Gambar */}
           <div className="flex flex-col gap-4">
             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
-              {imageUrl ? (
+              {imagesUrl ? (
                 <img
-                  src={imageUrl}
+                  src={imagesUrl[0] ?? ""}
                   alt={shopItem.name}
                   className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
                 />

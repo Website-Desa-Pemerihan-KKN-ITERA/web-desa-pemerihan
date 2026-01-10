@@ -31,8 +31,7 @@ export default function Page() {
           price: price,
           contact: contact,
           description: description,
-          featuredImageUrl: "xxxxx",
-          additionalImages: objectName
+          imagesUrl: objectName,
         }),
       });
 
