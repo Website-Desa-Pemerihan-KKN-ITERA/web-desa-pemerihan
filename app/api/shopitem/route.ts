@@ -4,7 +4,7 @@ import * as z from "zod";
 import { JwtPayload } from "jsonwebtoken";
 import prisma from "@/libs/prisma";
 import { Prisma } from "@/generated/prisma/client";
-import { generateSlug } from "@/libs/generateSlugHelper";
+import { generateSlug } from "@/helper/generateSlugHelper";
 
 const ShopItem = z.object({
   name: z.string(),

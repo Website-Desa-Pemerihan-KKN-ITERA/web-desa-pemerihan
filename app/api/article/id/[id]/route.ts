@@ -3,7 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
 import { validateBody } from "@/libs/requestHelper";
 import { validateJwtAuthHelper } from "@/helper/authHelper";
-import { generateSlug } from "@/libs/generateSlugHelper";
+import { generateSlug } from "@/helper/generateSlugHelper";
 
 const ArticleSchema = z.object({
   title: z.string().min(5),
