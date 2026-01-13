@@ -1,6 +1,6 @@
 "use server";
 import { randomUUID } from "crypto";
-import { s3Client, s3Conf } from "@/libs/awsS3";
+import { s3Client, s3Conf } from "@/libs/config/awsS3";
 import {
   PutObjectCommand,
   GetObjectCommand,
