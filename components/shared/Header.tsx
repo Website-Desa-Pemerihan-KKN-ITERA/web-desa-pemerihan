@@ -39,10 +39,16 @@ export default function Header() {
               UMKM (deprecated)
             </a>
             <a
-              href="/artikel"
+              href="/article"
               className="text-gray-700 hover:text-green-700 font-medium"
             >
               Artikel
+            </a>
+            <a
+              href="/artikel"
+              className="text-gray-700 hover:text-green-700 font-medium"
+            >
+              Artikel (deprecated)
             </a>
             <a
               href="/lokasi"

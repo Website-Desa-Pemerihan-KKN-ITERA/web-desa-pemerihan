@@ -6,4 +6,4 @@ const formatRupiah = (number: number) => {
   }).format(number);
 };
 
-export default formatRupiah
+export default formatRupiah;

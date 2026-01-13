@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { timeFormatter } from "@/libs/timeFormatterToID";
 import Link from "next/link";
 import { getShopItemImages } from "@/libs/presignedDownloadHelper";
 import formatRupiah from "@/libs/rupiahFormat";
@@ -29,10 +28,10 @@ export default function Page() {
     if (imgArr.length === 0) return;
 
     const getPresigned = async () => {
-      const url = await getShopItemImages(imgArr)
-      setImgDownloadArr(url)
-    }
-    getPresigned()
+      const url = await getShopItemImages(imgArr);
+      setImgDownloadArr(url);
+    };
+    getPresigned();
   }, [imgArr]);
 
   const getShopData = async () => {
@@ -48,7 +47,7 @@ export default function Page() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = await res.json();
@@ -87,12 +86,10 @@ export default function Page() {
       {!isLoading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {shopItems.map((item, i) => (
-
             <div
               key={item.slug}
               className="group bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col"
             >
-
               {/* Action Button */}
               <Link
                 href={`/shop/${item.slug}`} // Sesuaikan dengan routing detail page Anda
@@ -116,7 +113,10 @@ export default function Page() {
                 {/* Bagian Konten */}
                 <div className="p-4 flex flex-col flex-grow">
                   {/* Nama Produk (Truncate jika terlalu panjang) */}
-                  <h3 className="font-semibold text-gray-800 text-lg mb-1 truncate" title={item.name}>
+                  <h3
+                    className="font-semibold text-gray-800 text-lg mb-1 truncate"
+                    title={item.name}
+                  >
                     {item.name}
                   </h3>
 
