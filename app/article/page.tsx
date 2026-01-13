@@ -5,6 +5,51 @@ import { useEffect, useState } from "react";
 import { getShopItemImages } from "@/libs/presignedDownloadHelper";
 import { useSearchParams, usePathname } from "next/navigation";
 
+// --- [TAMBAHAN] Helper Function untuk logic Ellipsis ---
+const generatePagination = (currentPage: number, totalPages: number) => {
+  // Jika total halaman sedikit (<= 7), tampilkan semua
+  if (totalPages <= 5) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const siblingCount = 1; // Jumlah halaman tetangga di kiri/kanan halaman aktif
+  const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
+  const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
+
+  // Cek apakah perlu menampilkan titik-titik
+  const showLeftDots = leftSiblingIndex > 2;
+  const showRightDots = rightSiblingIndex < totalPages - 1;
+
+  // Case 1: Hanya titik di kanan (Posisi user di awal)
+  if (!showLeftDots && showRightDots) {
+    const leftItemCount = 3 + 2 * siblingCount;
+    const leftRange = Array.from({ length: leftItemCount }, (_, i) => i + 1);
+    return [...leftRange, "...", totalPages];
+  }
+
+  // Case 2: Hanya titik di kiri (Posisi user di akhir)
+  if (showLeftDots && !showRightDots) {
+    const rightItemCount = 3 + 2 * siblingCount;
+    const rightRange = Array.from(
+      { length: rightItemCount },
+      (_, i) => totalPages - rightItemCount + i + 1,
+    );
+    return [1, "...", ...rightRange];
+  }
+
+  // Case 3: Titik di kiri dan kanan (Posisi user di tengah)
+  if (showLeftDots && showRightDots) {
+    const middleRange = Array.from(
+      { length: rightSiblingIndex - leftSiblingIndex + 1 },
+      (_, i) => leftSiblingIndex + i,
+    );
+    return [1, "...", ...middleRange, "...", totalPages];
+  }
+
+  return [];
+};
+// ------------------------------------------------------
+
 type PaginationMeta = {
   currentPage: number;
   totalPages: number;
@@ -13,7 +58,7 @@ type PaginationMeta = {
 
 export default function Page() {
   const searchParams = useSearchParams();
-  const pathname = usePathname(); // Untuk mendapatkan url saat ini (misal /shop)
+  const pathname = usePathname();
   const page = Number(searchParams.get("page")) || 1;
 
   // const [isLoading, setIsLoading] = useState(true);
@@ -41,9 +86,6 @@ export default function Page() {
   }, [imgArr]);
 
   console.log("params: ", page);
-  // console.log("shopitem: ", shopItems);
-  // console.log("imgArr: ", imgArr);
-  // console.log("imgDownloadArr: ", imgDownloadArr);
 
   const getShopData = async () => {
     // setIsLoading(true);
@@ -51,7 +93,7 @@ export default function Page() {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/article/client?page=${page}&limit=10`,
+        `http://localhost:3000/api/article/client?page=${page}&limit=2`,
         {
           method: "GET",
           headers: {
@@ -67,19 +109,17 @@ export default function Page() {
         throw new Error(data.message || "Gagal mengambil data");
       }
 
-      // mapping ke seluruh item image url untuk dibuatkan presigneddownload
       const collectedImages = data.data.map(
         (item: any) => item.featuredImageUrl,
       );
       setImgArr(collectedImages);
 
       console.log("data: ", data);
-      // getShopItemImages(data.data.)
       setShopItems(data.data);
 
       if (data.meta) {
         setMeta({
-          currentPage: data.meta.currentPage,
+          currentPage: page,
           totalPages: data.meta.totalPages,
           totalItems: data.meta.totalItems,
         });
@@ -91,18 +131,22 @@ export default function Page() {
     }
   };
 
-  const createPageUrl = (newPage: number) => {
+  const createPageUrl = (newPage: number | string) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", newPage.toString());
     return `${pathname}?${params.toString()}`;
   };
 
+  // --- [TAMBAHAN] Generate array halaman ---
+  const paginationList = generatePagination(meta.currentPage, meta.totalPages);
+  // ----------------------------------------
+  //
+  console.log(meta);
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-green-50/30">
-      {/* Main Content with Sidebar */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Main Article Feed */}
           <div className="space-y-6">
             {shopItems.map((article: any, i: any) => (
               <Link
@@ -112,7 +156,6 @@ export default function Page() {
               >
                 <div className="bg-white rounded-xl border border-slate-200 hover:border-slate-300 transition-all duration-300 overflow-hidden">
                   <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-0">
-                    {/* Thumbnail */}
                     <div className="relative h-64 md:h-auto overflow-hidden">
                       <img
                         src={imgDownloadArr[i]!}
@@ -121,14 +164,12 @@ export default function Page() {
                       />
                     </div>
 
-                    {/* Content */}
                     <div className="p-6 flex flex-col justify-between">
                       <div>
                         <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#2D5A27] transition-colors line-clamp-2 font-[family-name:var(--font-montserrat)]">
                           {article.title}
                         </h2>
 
-                        {/* Meta Info */}
                         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
@@ -157,14 +198,24 @@ export default function Page() {
           </div>
 
           <div className="flex justify-center mt-5 gap-1">
-            {/* Nomor Halaman */}
+            {/* Nomor Halaman dengan Logic Ellipsis */}
             <div className="flex gap-1">
-              {/* Logika simple: Render semua halaman jika sedikit, 
-                   atau buat logic ellipsis (...) jika halaman banyak.
-                   Disini saya contohkan loop simple berdasarkan totalPages
-                */}
-              {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map(
-                (pageNum) => (
+              {/* --- [DIUBAH] Mapping menggunakan paginationList --- */}
+              {paginationList.map((pageNum, index) => {
+                // Render Ellipsis (Titik-titik)
+                if (pageNum === "...") {
+                  return (
+                    <span
+                      key={`dots-${index}`}
+                      className="w-10 h-10 flex items-center justify-center text-gray-400"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+
+                // Render Angka Halaman (Link)
+                return (
                   <Link
                     key={pageNum}
                     href={createPageUrl(pageNum)}
@@ -176,11 +227,12 @@ export default function Page() {
                   >
                     {pageNum}
                   </Link>
-                ),
-              )}
+                );
+              })}
+              {/* ------------------------------------------------ */}
             </div>
 
-            {/* Tombol Next */}
+            {/* Tombol Next (Tidak Berubah) */}
             <Link
               href={createPageUrl(page + 1)}
               prefetch={false}
