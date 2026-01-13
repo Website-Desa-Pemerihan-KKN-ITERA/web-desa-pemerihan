@@ -1,5 +1,6 @@
 import { getShopItemData } from "@/services/getShopItemData-shopPage";
 import ProductGallery from "@/ui/productGallery";
+import { FaWhatsapp } from "react-icons/fa";
 
 export default async function Page({
   params,
@@ -9,8 +10,6 @@ export default async function Page({
   const { slug } = await params;
   const [shopItem, imagesUrl] = await getShopItemData(slug);
 
-  // Perbaikan: Jangan return Response.json di dalam Page Component (ini untuk API route).
-  // Sebaiknya return UI Error atau notFound().
   if (!shopItem) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
@@ -24,7 +23,6 @@ export default async function Page({
     );
   }
 
-  // Helper untuk format Rupiah agar lebih rapi
   const formattedPrice = new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -44,22 +42,23 @@ export default async function Page({
 
           {/* Kolom Kanan: Detail Produk */}
           <div className="flex flex-col">
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
               {shopItem.name}
             </h1>
 
-            <p className="mt-2 text-2xl font-bold text-blue-600">
+            <p className="mt-2 text-3xl font-bold">
               {formattedPrice}
             </p>
 
-            <div className="mt-8">
+            <div className="mt-4">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <p className="text-sm text-gray-500 mb-1">Hubungi Penjual:</p>
                 <p className="text-lg font-semibold text-gray-800 break-all">
                   {shopItem.contact}
                 </p>
-                <button className="mt-3 w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                  Chat Penjual
+                <button className="flex justify-center items-center gap-1 mt-3 w-full bg-[#075e54] hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                  <FaWhatsapp className="text-xl"/>
+                  <span>Chat Penjual</span>
                 </button>
               </div>
             </div>

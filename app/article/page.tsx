@@ -97,7 +97,7 @@ export default function Page() {
                 key={article.slug}
                 className="block group"
               >
-                <div className="my-10 bg-white border-b border-slate-200 hover:border-slate-300 transition-all duration-300 overflow-hidden">
+                <div className="mb-5 py-5 bg-white border-b border-slate-200 hover:border-slate-300 transition-all duration-300 overflow-hidden">
                   <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-0">
                     <div className="relative h-64 overflow-hidden">
                       <img
@@ -163,7 +163,7 @@ export default function Page() {
                     href={createPageUrl(pageNum, searchParams, pathname)}
                     className={`w-10 h-10 flex items-center justify-center rounded-lg border text-sm font-medium transition-colors ${
                       pageNum === page
-                        ? "bg-[#2D5A27] text-white border-[#2D5A27]"
+                        ? "bg-yellow-400 text-gray-700 border-yellow-400"
                         : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                     }`}
                   >
