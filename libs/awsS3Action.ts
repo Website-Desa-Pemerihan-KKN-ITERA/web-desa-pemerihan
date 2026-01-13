@@ -10,7 +10,6 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as z from "zod";
 import { UploadImgMetaSchema } from "./config/fileValidation";
-
 const UploadSchema = z.object({
   originalName: z.string(),
   type: z.string(),
@@ -86,10 +85,12 @@ export async function getPresignedUploadUrl(
 ): Promise<Result<UploadSuccess>> {
   try {
     await bucketInit();
+
+    console.log(type);
     const fileUpdate = {
-      originalName,
-      type,
-      size,
+      originalName: originalName,
+      mimeType: type,
+      size: size,
     };
 
     const fileAudit = UploadImgMetaSchema.safeParse(fileUpdate);
@@ -107,7 +108,7 @@ export async function getPresignedUploadUrl(
     }
 
     // making object name from random uuid
-    const extension = fileAudit.data.originalname.split(".").pop();
+    const extension = fileAudit.data.originalName.split(".").pop();
     const objectName = `${randomUUID()}.${extension}`;
 
     console.log(type);

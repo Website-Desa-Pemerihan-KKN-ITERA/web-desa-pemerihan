@@ -10,7 +10,7 @@ const ALLOWED_IMG_MIME = [
 ] as const;
 
 export const UploadImgMetaSchema = z.object({
-  originalname: z.string().min(1),
-  mimetype: z.enum(ALLOWED_IMG_MIME),
+  originalName: z.string().min(1),
+  mimeType: z.enum(ALLOWED_IMG_MIME),
   size: z.number().max(imgSize),
 });
