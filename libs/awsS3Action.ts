@@ -8,6 +8,28 @@ import {
   CreateBucketCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import * as z from "zod";
+import { UploadImgMetaSchema } from "./config/fileValidation";
+const UploadSchema = z.object({
+  originalName: z.string(),
+  type: z.string(),
+  size: z.number(),
+});
+
+type Error = {
+  message: string;
+  code: string;
+  status: number;
+  details?: unknown;
+};
+
+type UploadSuccess = {
+  url: string;
+  objectName: string;
+  message: string;
+};
+
+type Result<T> = { success: true; data: T } | { success: false; error: Error };
 
 let isBucketInitialized = false;
 
@@ -59,12 +81,37 @@ export async function bucketInit() {
 export async function getPresignedUploadUrl(
   originalName: string,
   type: string,
-) {
+  size: number,
+): Promise<Result<UploadSuccess>> {
   try {
     await bucketInit();
+
+    console.log(type);
+    const fileUpdate = {
+      originalName: originalName,
+      mimeType: type,
+      size: size,
+    };
+
+    const fileAudit = UploadImgMetaSchema.safeParse(fileUpdate);
+
+    if (!fileAudit.success) {
+      return {
+        success: false,
+        error: {
+          message: "Format file salah",
+          code: "VALIDATION_ERROR",
+          status: 422,
+          details: z.treeifyError(fileAudit.error),
+        },
+      };
+    }
+
     // making object name from random uuid
-    const extension = originalName.split(".").pop();
+    const extension = fileAudit.data.originalName.split(".").pop();
     const objectName = `${randomUUID()}.${extension}`;
+
+    console.log(type);
 
     const command = new PutObjectCommand({
       Bucket: s3Conf.BUCKET_NAME,
@@ -76,10 +123,25 @@ export async function getPresignedUploadUrl(
       expiresIn: s3Conf.uploadExpiry,
     });
 
-    return { success: true, url: presignedUrl, objectName };
-  } catch (error) {
-    console.error("s3 Error:", error);
-    return { success: false, error: "Gagal generate URL" };
+    return {
+      success: true,
+      data: {
+        url: presignedUrl,
+        objectName,
+        message: "Presigned upload URL berhasil dibuat",
+      },
+    };
+  } catch (err) {
+    console.error("s3 Error:", err);
+    return {
+      success: false,
+      error: {
+        message: "Gagal membuat presigned upload URL",
+        code: "S3_PRESIGNED_URL_ERROR",
+        status: 500,
+        details: err instanceof Error ? err.message : err,
+      },
+    };
   }
 }
 

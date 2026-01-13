@@ -22,7 +22,7 @@ export async function getShopItemImages(
     });
 
     const imageUrlArray = await Promise.all(uploadPromises);
-    console.log(imageUrlArray);
+    // console.log(imageUrlArray);
 
     return imageUrlArray;
   } catch (error) {

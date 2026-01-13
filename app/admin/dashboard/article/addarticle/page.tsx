@@ -52,14 +52,17 @@ export default function Page() {
     if (!file) return;
 
     try {
-      const { success, url, objectName, error } = await getPresignedUploadUrl(
+      const result = await getPresignedUploadUrl(
         file.name,
         file.type,
+        file.size,
       );
 
-      if (!success || !url || !objectName) {
-        throw new Error(error || "Gagal mendapatkan URL upload");
+      if (!result.success) {
+        throw new Error(result.error.message);
       }
+
+      const { url, objectName } = result.data;
 
       // upload to minio (Direct from Browser)
       const uploadRes = await fetch(url, {

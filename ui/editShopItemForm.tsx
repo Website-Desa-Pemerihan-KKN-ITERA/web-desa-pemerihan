@@ -54,14 +54,16 @@ export default function EditShopItemForm({ initialData }: ShopItemFormProps) {
       }[];
       const uploaded = await Promise.all(
         filesToUpload.map(async ({ file, index }) => {
-          const { success, url, objectName } = await getPresignedUploadUrl(
+          const result = await getPresignedUploadUrl(
             file.name,
             file.type,
+            file.size,
           );
 
-          if (!success || !url || !objectName) {
-            throw new Error("Gagal generate presigned URL");
+          if (!result.success) {
+            throw new Error(result.error.message);
           }
+          const { url, objectName } = result.data;
 
           const res = await fetch(url, {
             method: "PUT",

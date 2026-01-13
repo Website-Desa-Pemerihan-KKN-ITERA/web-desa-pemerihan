@@ -65,35 +65,40 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
       console.error(err);
     }
   };
-
+  console.log(file?.size);
   const handleProcess = async () => {
     try {
       let uploadedObjectName = null;
-
-      if (file) {
-        const { success, url, objectName, error } = await getPresignedUploadUrl(
-          file.name,
-          file.type,
-        );
-
-        if (!success || !url || !objectName) {
-          throw new Error(error || "Gagal mendapatkan URL upload");
-        }
-
-        const uploadRes = await fetch(url, {
-          method: "PUT",
-          body: file,
-          headers: {
-            "Content-Type": file.type,
-          },
-        });
-
-        if (!uploadRes.ok) {
-          throw new Error("Gagal upload ke Minio");
-        }
-
-        uploadedObjectName = objectName;
+      if (!file) {
+        await handleUpdateArticle(null);
+        return;
       }
+
+      const result = await getPresignedUploadUrl(
+        file.name,
+        file.type,
+        file.size,
+      );
+
+      if (!result.success) {
+        throw new Error(result.error.message);
+      }
+
+      const { url, objectName } = result.data;
+
+      const uploadRes = await fetch(url, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Gagal upload ke Minio");
+      }
+
+      uploadedObjectName = objectName;
 
       await handleUpdateArticle(uploadedObjectName);
     } catch (err: any) {

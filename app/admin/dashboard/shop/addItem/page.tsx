@@ -61,16 +61,18 @@ export default function Page() {
       // B. Map: Ubah setiap file menjadi sebuah Promise upload
       const uploadPromises = validFiles.map(async (currentFile) => {
         // 1. Get Presigned URL
-        const { success, url, objectName, error } = await getPresignedUploadUrl(
+
+        const result = await getPresignedUploadUrl(
           currentFile.name,
           currentFile.type,
+          currentFile.size,
         );
 
-        if (!success || !url || !objectName) {
-          throw new Error(
-            `Gagal generate URL untuk ${currentFile.name}: ${error}`,
-          );
+        if (!result.success) {
+          throw new Error(result.error.message);
         }
+
+        const { url, objectName } = result.data;
 
         // 2. Upload ke MinIO (PUT)
         const uploadRes = await fetch(url, {
@@ -91,7 +93,13 @@ export default function Page() {
 
       // C. Promise.all: Tunggu semua proses upload selesai
       // Hasilnya adalah array berisi objectName yang sukses: ["img1.jpg", "img2.png", ...]
-      const uploadedObjectNames = await Promise.all(uploadPromises);
+
+      const uploadedObjectNames = (await Promise.all(uploadPromises)).filter(
+        (name): name is string => typeof name === "string",
+      );
+      if (uploadedObjectNames.length === 0) {
+        throw new Error("Tidak ada gambar yang berhasil diupload");
+      }
 
       // D. Panggil fungsi simpan ke DB dengan array hasil upload
       handleAddArticle(uploadedObjectNames);
