@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   createPageUrl,
   generatePagination,
-} from "@/helper/pageNumberingUiHelper";
+} from "@/helpers/pageNumberingUiHelper";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { getShopItemImages } from "@/helpers/presignedDownloadHelper";
