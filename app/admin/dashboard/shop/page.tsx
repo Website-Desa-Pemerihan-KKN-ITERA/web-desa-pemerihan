@@ -21,7 +21,7 @@ export default function Page() {
     const token = localStorage.getItem("auth");
     try {
       const res = await fetch(
-        "http://localhost:3000/api/shopitem?page=1&limit=10",
+        "/api/shopitem?page=1&limit=10",
         {
           method: "GET",
           headers: {
@@ -53,7 +53,7 @@ export default function Page() {
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem("auth");
     try {
-      const res = await fetch(`http://localhost:3000/api/shopitem/id/${id}`, {
+      const res = await fetch(`/api/shopitem/id/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

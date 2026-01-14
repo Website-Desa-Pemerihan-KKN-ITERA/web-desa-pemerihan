@@ -84,7 +84,7 @@ export default function EditShopItemForm({ initialData }: ShopItemFormProps) {
       });
 
       const res = await fetch(
-        `http://localhost:3000/api/shopitem/id/${initialData.id}`,
+        `/api/shopitem/id/${initialData.id}`,
         {
           method: "PUT",
           headers: {

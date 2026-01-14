@@ -20,7 +20,7 @@ export default function Page() {
       const token = localStorage.getItem("auth");
       console.log(objectName);
 
-      const res = await fetch("http://localhost:3000/api/shopitem", {
+      const res = await fetch("/api/shopitem", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

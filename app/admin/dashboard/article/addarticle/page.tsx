@@ -22,7 +22,7 @@ export default function Page() {
     try {
       const token = localStorage.getItem("auth");
 
-      const res = await fetch("http://localhost:3000/api/article", {
+      const res = await fetch("/api/article", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

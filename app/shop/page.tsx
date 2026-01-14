@@ -61,7 +61,7 @@ export default function Page() {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/shopitem/client?page=${page}&limit=12`,
+        `/api/shopitem/client?page=${page}&limit=12`,
         {
           method: "GET",
           headers: {

@@ -21,7 +21,7 @@ export default function ArticleDashboard() {
     const token = localStorage.getItem("auth");
     try {
       const res = await fetch(
-        "http://localhost:3000/api/article?page=1&limit=10",
+        "/api/article?page=1&limit=10",
         {
           method: "GET",
           headers: {
@@ -53,7 +53,7 @@ export default function ArticleDashboard() {
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem("auth");
     try {
-      const res = await fetch(`http://localhost:3000/api/article/id/${id}`, {
+      const res = await fetch(`/api/article/id/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

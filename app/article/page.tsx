@@ -49,7 +49,7 @@ export default function Page() {
     try {
       // fetch and error handling
       const res = await fetch(
-        `http://localhost:3000/api/article/client?page=${page}&limit=7`,
+        `/api/article/client?page=${page}&limit=7`,
         {
           method: "GET",
           headers: {

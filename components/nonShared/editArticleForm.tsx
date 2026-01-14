@@ -37,7 +37,7 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
       const token = localStorage.getItem("auth");
 
       const res = await fetch(
-        `http://localhost:3000/api/article/id/${initialData.id}`,
+        `/api/article/id/${initialData.id}`,
         {
           method: "PUT",
           headers: {
