@@ -366,6 +366,70 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Kabar Desa (News) */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
+            Kabar Desa
+          </h2>
+          <p className="text-center text-gray-600 mb-12">
+            Berita terkini dan kegiatan terbaru dari Desa Pemerihan untuk
+            kepentingan bersama
+          </p>
+
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent"></div>
+              <p className="text-gray-600 mt-4">Memuat berita...</p>
+            </div>
+          ) : newsArticles.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">Belum ada berita tersedia</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {newsArticles.map((article, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  <div className="relative">
+                    <img
+                      src={imgDownloadArr[index] || article.image}
+                      alt={article.title}
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <div className="text-sm text-gray-500 mb-2">
+                      {article.date}
+                    </div>
+                    <h4 className="font-bold text-gray-800 mb-3 line-clamp-2">
+                      {article.title}
+                    </h4>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      {article.excerpt}
+                    </p>
+                    <a
+                      href={`/article/${article.slug}`}
+                      className="text-yellow-600 font-semibold text-sm hover:text-green-700 inline-flex items-center gap-1"
+                    >
+                      Baca Selengkapnya →
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="text-center mt-12">
+            <button className="bg-amber-600 text-white font-semibold px-8 py-3 rounded-full hover:bg-amber-700 transition">
+              Lihat Semua Berita →
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Lokasi Desa */}
       <section id="contact" className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -439,101 +503,6 @@ export default function HomePage() {
                 Sabtu : 08:00 - 12:00
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Kabar Desa (News) */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
-            Kabar Desa
-          </h2>
-          <p className="text-center text-gray-600 mb-12">
-            Berita terkini dan kegiatan terbaru dari Desa Pemerihan untuk
-            kepentingan bersama
-          </p>
-
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent"></div>
-              <p className="text-gray-600 mt-4">Memuat berita...</p>
-            </div>
-          ) : newsArticles.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600">Belum ada berita tersedia</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {newsArticles.map((article, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
-                >
-                  <div className="relative">
-                    <span className="absolute top-3 left-3 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-full z-10">
-                      {article.category}
-                    </span>
-                    <img
-                      src={imgDownloadArr[index] || article.image}
-                      alt={article.title}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <div className="text-sm text-gray-500 mb-2">
-                      {article.date}
-                    </div>
-                    <h4 className="font-bold text-gray-800 mb-3 line-clamp-2">
-                      {article.title}
-                    </h4>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {article.excerpt}
-                    </p>
-                    <a
-                      href={`/article/${article.slug}`}
-                      className="text-green-600 font-semibold text-sm hover:text-green-700 inline-flex items-center gap-1"
-                    >
-                      Baca Selengkapnya →
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="text-center mt-12">
-            <button className="bg-amber-600 text-white font-semibold px-8 py-3 rounded-full hover:bg-amber-700 transition">
-              Lihat Semua Berita →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section - Kunjungi Desa */}
-      <section className="py-16 md:py-20 bg-gradient-to-r from-amber-700 to-amber-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            Kunjungi Desa Sejahtera
-          </h2>
-          <p className="text-lg md:text-xl text-amber-100 mb-8">
-            Nikmati keindahan alam, budaya lokal, dan keramahan masyarakat Desa
-            Pemerihan. Kami siap menyambut Anda dengan hangat!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#contact"
-              className="bg-yellow-400 text-gray-900 font-semibold px-8 py-3 rounded-full hover:bg-yellow-500 transition inline-flex items-center justify-center gap-2"
-            >
-              <Phone className="w-5 h-5" />
-              Hubungi Kami
-            </a>
-            <a
-              href="/tentang"
-              className="bg-transparent border-2 border-white text-white font-semibold px-8 py-3 rounded-full hover:bg-white hover:text-amber-900 transition"
-            >
-              Tentang Kami
-            </a>
           </div>
         </div>
       </section>
