@@ -1,11 +1,8 @@
 import prisma from "@/libs/prisma";
 import { getPresignedDownloadUrl } from "@/libs/awsS3Action";
-import { Prisma } from "@/generated/prisma/client";
+import { ShopItems } from "@/generated/prisma/client";
 
-type ShopItemResult = [
-  Prisma.ShopItemsGetPayload<{}> | null,
-  (string | null)[],
-];
+type ShopItemResult = [ShopItems | null, (string | null)[]];
 
 export async function getShopItemData(id: number): Promise<ShopItemResult> {
   try {

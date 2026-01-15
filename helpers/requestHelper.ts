@@ -15,7 +15,7 @@ export async function validateBody<T>(
   req: Request,
   schema: z.Schema<T>,
 ): Promise<ValidationResult<T>> {
-  let body: any;
+  let body;
 
   try {
     body = await req.json();

@@ -6,6 +6,7 @@ import {
   GetObjectCommand,
   HeadBucketCommand,
   CreateBucketCommand,
+  S3ServiceException,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as z from "zod";
@@ -49,31 +50,35 @@ export async function bucketInit() {
   try {
     await s3Client.send(new HeadBucketCommand({ Bucket: s3Conf.BUCKET_NAME }));
     isBucketInitialized = true;
-  } catch (e: any) {
-    if (e.$metadata?.httpStatusCode === 404) {
+  } catch (e) {
+    // Casting error 'e' menjadi S3ServiceException agar properti $metadata terbaca
+    const error = e as S3ServiceException;
+
+    if (error.$metadata?.httpStatusCode === 404) {
       try {
         await s3Client.send(
           new CreateBucketCommand({ Bucket: s3Conf.BUCKET_NAME }),
         );
-        console.log(`Bucket ${s3Conf.BUCKET_NAME} dibuat.`); // untuk debugging aja
+        console.log(`Bucket ${s3Conf.BUCKET_NAME} dibuat.`);
         isBucketInitialized = true;
-      } catch (err: any) {
-        // mungkin aja bucketnya udah pernah di buat?
+      } catch (createErr) {
+        const createError = createErr as S3ServiceException;
+
+        // Cek error name dan status code
         if (
-          err.name === "BucketAlreadyOwnedByYou" ||
-          err.name === "BucketAlreadyExists" ||
-          err.$metadata?.httpStatusCode === 409 // untuk fallback minio, katanya minio return 409, idk if it real or no
+          createError.name === "BucketAlreadyOwnedByYou" ||
+          createError.name === "BucketAlreadyExists" ||
+          createError.$metadata?.httpStatusCode === 409
         ) {
           isBucketInitialized = true;
         } else {
-          console.error("error ketika buat bucket: ", err);
-          // debug thing hapus aja kalau udah guarantee gaada bug (it not executed in my case, idk other else tho, so i kept it)
-          throw err;
+          console.error("Error creating bucket: ", createError);
+          throw createError;
         }
       }
     } else {
-      // in case bukan 404
-      throw e;
+      // Jika error bukan 404, lempar kembali
+      throw error;
     }
   }
 }

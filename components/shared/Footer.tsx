@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer
@@ -35,36 +37,36 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3 text-sm text-amber-50">
               <li>
-                <a
+                <Link
                   href="/"
                   className="hover:text-white hover:translate-x-1 transition-all inline-block"
                 >
                   Beranda
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/tentang"
                   className="hover:text-white hover:translate-x-1 transition-all inline-block"
                 >
                   Tentang
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/umkm"
                   className="hover:text-white hover:translate-x-1 transition-all inline-block"
                 >
                   Produk UMKM
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/berita"
                   className="hover:text-white hover:translate-x-1 transition-all inline-block"
                 >
                   Informasi Publik
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -76,12 +78,12 @@ export default function Footer() {
           </p>
 
           <div>
-            <a
+            <Link
               href="/admin/dashboard/article"
               className="flex text-amber-50/40 hover:text-white text-xs transition-colors items-center gap-2"
             >
               <span>Login Admin</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
