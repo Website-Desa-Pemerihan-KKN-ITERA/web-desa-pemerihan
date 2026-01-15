@@ -74,7 +74,7 @@ export async function POST(req: Request) {
   // }
 
   // generate slug from title
-  let finalSlug = generateSlug(result.data.title);
+  const finalSlug = generateSlug(result.data.title);
 
   // check if slug is already exist and throw error
   const checkSlugExist = await prisma.article.findUnique({

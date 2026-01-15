@@ -1,6 +1,10 @@
-"use client"; // Wajib ada untuk interaksi (state) di Next.js App Router
-
+"use client";
 import { useState } from "react";
+
+interface NavLinkProps {
+  href: string;
+  children: React.ReactNode;
+}
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -90,7 +94,7 @@ export default function Header() {
 }
 
 // Komponen link untuk Desktop
-function NavLink({ href, children }: any) {
+function NavLink({ href, children }: NavLinkProps) {
   return (
     <a
       href={href}
@@ -102,7 +106,7 @@ function NavLink({ href, children }: any) {
 }
 
 // Komponen link untuk Mobile (lebih besar area kliknya)
-function MobileNavLink({ href, children }: any) {
+function MobileNavLink({ href, children }: NavLinkProps) {
   return (
     <a
       href={href}

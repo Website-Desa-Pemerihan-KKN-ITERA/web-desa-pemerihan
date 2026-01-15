@@ -15,14 +15,24 @@ type PaginationMeta = {
   totalItems: number;
 };
 
+interface Article {
+  id: number;
+  createdAt: string;
+  title: string;
+  slug: string;
+  featuredImageUrl: string;
+  content: string;
+}
+
 export default function Page() {
+  // ambil parameter, default 1 jika kosong
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const page = Number(searchParams.get("page")) || 1;
 
   const [imgArr, setImgArr] = useState<string[]>([]);
   const [imgDownloadArr, setImgDownloadArr] = useState<(string | null)[]>([]);
-  const [shopItems, setShopItems] = useState<any>([]);
+  const [article, setArticle] = useState<Article[]>([]);
   const [meta, setMeta] = useState<PaginationMeta>({
     currentPage: 1,
     totalPages: 1,
@@ -42,7 +52,6 @@ export default function Page() {
     };
     getPresigned();
   }, [imgArr]);
-  console.log(imgDownloadArr);
 
   const getShopData = async () => {
     const token = localStorage.getItem("auth");
@@ -62,10 +71,10 @@ export default function Page() {
       }
 
       const collectedImages = data.data.map(
-        (item: any) => item.featuredImageUrl,
+        (item: Article) => item.featuredImageUrl,
       );
       setImgArr(collectedImages);
-      setShopItems(data.data);
+      setArticle(data.data);
       if (data.meta) {
         setMeta({
           currentPage: page,
@@ -75,11 +84,11 @@ export default function Page() {
       }
     } catch (err) {
       console.error("Fetch Error:", err);
+      alert("Gagal mengambil data");
     }
   };
 
   const paginationList = generatePagination(meta.currentPage, meta.totalPages);
-  console.log(paginationList);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-green-50/30">
@@ -89,7 +98,7 @@ export default function Page() {
       <section className="pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-6">
-            {shopItems.map((article: any, i: any) => (
+            {article.map((article, i) => (
               <Link
                 href={`/article/${article.slug}`}
                 key={article.slug}

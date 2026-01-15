@@ -75,7 +75,9 @@ export default function Page() {
       }
 
       // mapping ke seluruh item image url untuk dibuatkan presigneddownload
-      const collectedImages = data.data.map((item: any) => item.imagesUrl[0]);
+      const collectedImages = data.data.map(
+        (item: ShopItem) => item.imagesUrl[0],
+      );
       setImgArr(collectedImages);
 
       // getShopItemImages(data.data.)

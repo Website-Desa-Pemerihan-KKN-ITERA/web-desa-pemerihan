@@ -103,7 +103,7 @@ export default function EditShopItemForm({ initialData }: ShopItemFormProps) {
       alert("Item berhasil diperbarui!");
       router.push("/admin/dashboard/shop");
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       alert("Gagal memperbarui item");
     }

@@ -103,7 +103,7 @@ export default function Page() {
 
       // D. Panggil fungsi simpan ke DB dengan array hasil upload
       handleAddArticle(uploadedObjectNames);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Upload Error:", err);
       alert("Terjadi kesalahan saat mengupload gambar.");
     }

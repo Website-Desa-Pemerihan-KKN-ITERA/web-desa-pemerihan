@@ -61,7 +61,7 @@ export async function POST(req: Request) {
   }
 
   // generate slug from title
-  let finalSlug = generateSlug(result.data.name);
+  const finalSlug = generateSlug(result.data.name);
 
   // push new item to db
   try {

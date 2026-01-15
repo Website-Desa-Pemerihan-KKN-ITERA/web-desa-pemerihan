@@ -1,8 +1,8 @@
 import prisma from "@/libs/prisma";
 import { getPresignedDownloadUrl } from "@/libs/awsS3Action";
-import { Prisma } from "@/generated/prisma/client";
+import { Article } from "@/generated/prisma/client";
 
-type ArticleResult = [Prisma.ArticleGetPayload<{}> | null, string | null];
+type ArticleResult = [Article | null, string | null];
 
 export async function getArticleDataById(id: number): Promise<ArticleResult> {
   try {
