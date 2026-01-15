@@ -6,7 +6,7 @@ const endpoint = `${protocol}://${process.env.MINIO_ENDPOINT || "localhost"}:${p
 
 export const s3Client = new S3Client({
   region: "us-east-1",
-  endpoint: endpoint,
+  endpoint: process.env.SUPABASE_BUCKET_LINK || endpoint,
   credentials: {
     accessKeyId: process.env.MINIO_ACCESS_KEY!,
     secretAccessKey: process.env.MINIO_SECRET_KEY!,
