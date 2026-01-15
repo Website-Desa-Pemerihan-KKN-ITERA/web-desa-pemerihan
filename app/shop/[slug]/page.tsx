@@ -46,9 +46,7 @@ export default async function Page({
               {shopItem.name}
             </h1>
 
-            <p className="mt-2 text-3xl font-bold">
-              {formattedPrice}
-            </p>
+            <p className="mt-2 text-3xl font-bold">{formattedPrice}</p>
 
             <div className="mt-4">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -57,7 +55,7 @@ export default async function Page({
                   {shopItem.contact}
                 </p>
                 <button className="flex justify-center items-center gap-1 mt-3 w-full bg-[#075e54] hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                  <FaWhatsapp className="text-xl"/>
+                  <FaWhatsapp className="text-xl" />
                   <span>Chat Penjual</span>
                 </button>
               </div>

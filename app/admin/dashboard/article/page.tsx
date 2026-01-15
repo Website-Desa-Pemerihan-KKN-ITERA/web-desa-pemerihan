@@ -9,8 +9,17 @@ import { timeFormatter } from "@/helpers/timeFormatterToID";
 import { RiExpandDiagonalLine } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 
+interface Article {
+  id: number;
+  createdAt: string;
+  title: string;
+  slug: string;
+  featuredImageUrl: string;
+  content: string;
+}
+
 export default function ArticleDashboard() {
-  const [articles, setArticles] = useState<any>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,16 +29,13 @@ export default function ArticleDashboard() {
   const getArticleData = async () => {
     const token = localStorage.getItem("auth");
     try {
-      const res = await fetch(
-        "/api/article?page=1&limit=10",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch("/api/article?page=1&limit=10", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 
@@ -45,6 +51,7 @@ export default function ArticleDashboard() {
       }
 
       setArticles(data.data);
+      console.log(data.data);
     } catch (err) {
       console.error(err);
     }
@@ -89,7 +96,7 @@ export default function ArticleDashboard() {
           </Link>
         </div>
 
-        {articles.map((article: any) => (
+        {articles.map((article) => (
           <div key={article.id} className="flex flex-col gap-4 mb-5">
             <div className="border border-[#ACACAF] rounded-2xl px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>

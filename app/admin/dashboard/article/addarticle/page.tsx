@@ -78,7 +78,7 @@ export default function Page() {
       }
 
       handleAddArticle(objectName);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
     }
   };

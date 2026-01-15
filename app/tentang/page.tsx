@@ -73,7 +73,7 @@ export default function TentangPage() {
                 flora dan fauna khas Lampung.
               </p>
               <p>
-                Nama "Pemerihan" sendiri berasal dari kata yang memiliki makna
+                Nama Pemerihan sendiri berasal dari kata yang memiliki makna
                 historis bagi masyarakat setempat. Desa ini berdiri sejak
                 puluhan tahun yang lalu dengan komitmen kuat untuk menjaga
                 kelestarian alam sambil terus berkembang. Tradisi masyarakat

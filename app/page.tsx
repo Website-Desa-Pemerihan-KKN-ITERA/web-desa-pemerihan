@@ -11,6 +11,9 @@ interface Article {
   category: string;
   excerpt: string;
   slug: string;
+  featuredImageUrl: string;
+  createdAt: string;
+  content: string;
 }
 
 export default function HomePage() {
@@ -39,11 +42,11 @@ export default function HomePage() {
 
         if (result.success && result.data) {
           const collectedImages = result.data.map(
-            (article: any) => article.featuredImageUrl,
+            (article: Article) => article.featuredImageUrl,
           );
           setImgArr(collectedImages);
 
-          const parsedArticles = result.data.map((article: any) => ({
+          const parsedArticles = result.data.map((article: Article) => ({
             title: article.title,
             date: new Date(article.createdAt).toLocaleDateString("id-ID", {
               day: "numeric",

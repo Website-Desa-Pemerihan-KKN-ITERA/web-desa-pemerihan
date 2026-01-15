@@ -60,16 +60,13 @@ export default function Page() {
     const token = localStorage.getItem("auth");
 
     try {
-      const res = await fetch(
-        `/api/shopitem/client?page=${page}&limit=12`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`/api/shopitem/client?page=${page}&limit=12`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 
@@ -78,7 +75,9 @@ export default function Page() {
       }
 
       // mapping ke seluruh item image url untuk dibuatkan presigneddownload
-      const collectedImages = data.data.map((item: any) => item.imagesUrl[0]);
+      const collectedImages = data.data.map(
+        (item: ShopItem) => item.imagesUrl[0],
+      );
       setImgArr(collectedImages);
 
       // getShopItemImages(data.data.)

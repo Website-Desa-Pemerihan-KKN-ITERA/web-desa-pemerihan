@@ -36,21 +36,18 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
     try {
       const token = localStorage.getItem("auth");
 
-      const res = await fetch(
-        `/api/article/id/${initialData.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title: title,
-            content: value,
-            featuredImageUrl: objectName || undefined,
-          }),
+      const res = await fetch(`/api/article/id/${initialData.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify({
+          title: title,
+          content: value,
+          featuredImageUrl: objectName || undefined,
+        }),
+      });
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -60,8 +57,8 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
       alert("Artikel berhasil diperbarui!");
       router.push("/admin/dashboard/article");
       router.refresh();
-    } catch (err: any) {
-      alert("Gagal memperbarui: " + err.message);
+    } catch (err) {
+      alert("Gagal memperbarui data");
       console.error(err);
     }
   };
@@ -101,7 +98,7 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
       uploadedObjectName = objectName;
 
       await handleUpdateArticle(uploadedObjectName);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       alert("Terjadi kesalahan sistem");
     }

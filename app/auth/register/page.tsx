@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function page() {
+export default function Page() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,12 +26,12 @@ export default function page() {
       }
 
       const data = await res.json();
-      console.log(data.token);
 
       localStorage.setItem("auth", data.token);
       router.push("/admin/dashboard/article");
     } catch (err) {
       console.error(err);
+      alert("Error saat login");
     }
   };
 

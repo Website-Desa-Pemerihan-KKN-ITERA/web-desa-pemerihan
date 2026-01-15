@@ -83,30 +83,27 @@ export default function EditShopItemForm({ initialData }: ShopItemFormProps) {
         imageUrls[index] = objectName;
       });
 
-      const res = await fetch(
-        `/api/shopitem/id/${initialData.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name,
-            price,
-            contact,
-            description,
-            imagesUrl: imageUrls,
-          }),
+      const res = await fetch(`/api/shopitem/id/${initialData.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify({
+          name,
+          price,
+          contact,
+          description,
+          imagesUrl: imageUrls,
+        }),
+      });
 
       if (!res.ok) throw new Error("Update gagal");
 
       alert("Item berhasil diperbarui!");
       router.push("/admin/dashboard/shop");
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       alert("Gagal memperbarui item");
     }
