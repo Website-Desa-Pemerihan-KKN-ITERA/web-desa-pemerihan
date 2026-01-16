@@ -25,7 +25,6 @@ interface MyJwtPayload extends JwtPayload {
 // POST //
 //////////
 export async function POST(req: Request) {
-  let dialNum;
   // validate body
   const result = await validateBody(req, ShopItem);
   if (!result.success) {
@@ -64,8 +63,9 @@ export async function POST(req: Request) {
   // generate slug from title
   const finalSlug = generateSlug(result.data.name);
 
-  if (result.data.contact.startsWith("0")) {
-    dialNum = "62" + result.data.contact.slice(1);
+  let dialNum = result.data.contact;
+  if (dialNum.startsWith("0")) {
+    dialNum = "62" + dialNum.slice(1);
   }
 
   // push new item to db
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
         name: result.data.name,
         slug: finalSlug,
         price: result.data.price,
-        contact: result.data.contact,
+        contact: dialNum,
         description: result.data.description,
         imagesUrl: result.data.imagesUrl,
       },
