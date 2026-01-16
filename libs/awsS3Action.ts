@@ -13,11 +13,6 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as z from "zod";
 import { UploadImgMetaSchema } from "./config/fileValidation";
-const UploadSchema = z.object({
-  originalName: z.string(),
-  type: z.string(),
-  size: z.number(),
-});
 
 type Error = {
   message: string;
@@ -106,7 +101,7 @@ export async function getPresignedUploadUrl(
       return {
         success: false,
         error: {
-          message: "Format file salah",
+          message: "Format file salah atau ukuran file terlalu besar",
           code: "VALIDATION_ERROR",
           status: 422,
           details: z.treeifyError(fileAudit.error),
