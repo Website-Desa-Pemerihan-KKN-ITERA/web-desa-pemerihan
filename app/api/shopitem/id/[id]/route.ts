@@ -149,13 +149,13 @@ export async function DELETE(
   }
 
   try {
-    const shopItem = await prisma.article.findUnique({
+    const shopItem = await prisma.shopItems.findUnique({
       where: { id: itemId },
     });
     if (!shopItem) {
       throw new Error("Item nya kosong");
     }
-    deleteImgInBucket(shopItem.imagesUrl);
+    await deleteImgInBucket(shopItem.imagesUrl);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       switch (err.code) {

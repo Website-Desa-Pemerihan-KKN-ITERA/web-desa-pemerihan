@@ -136,7 +136,7 @@ export async function DELETE(
     if (!article) {
       throw new Error("artikel nya kosong");
     }
-    deleteImgInBucket([article?.featuredImageUrl]);
+    await deleteImgInBucket([article.featuredImageUrl]);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       switch (err.code) {
