@@ -46,16 +46,13 @@ export default function ArticleDashboard() {
     setIsLoading(true);
     const token = localStorage.getItem("auth");
     try {
-      const res = await fetch(
-        `/api/article?page=${page}&limit=5`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`/api/article?page=${page}&limit=5`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 

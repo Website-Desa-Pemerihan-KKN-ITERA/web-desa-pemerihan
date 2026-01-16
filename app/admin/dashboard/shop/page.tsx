@@ -35,7 +35,7 @@ export default function Page() {
     totalPages: 1,
     totalItems: 0,
   });
-  
+
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
   const page = Number(searchParams.get("page")) || 1;
@@ -48,16 +48,13 @@ export default function Page() {
     setIsLoading(true);
     const token = localStorage.getItem("auth");
     try {
-      const res = await fetch(
-        `/api/shopitem?page=${page}&limit=5`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`/api/shopitem?page=${page}&limit=5`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 
