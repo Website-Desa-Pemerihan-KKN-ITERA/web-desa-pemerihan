@@ -122,15 +122,15 @@ function ShopContent() {
             <Link href={`/shop/${item.slug}`}>
               {/* Bagian Image */}
               <div className="relative aspect-square rounded-xl bg-gray-100 overflow-hidden">
-                {item.imagesUrl && item.imagesUrl.length > 0 ? (
+                {imgDownloadArr[i] ? (
                   <img
-                    src={imgDownloadArr[i] || ""} // Handle null safely
+                    src={imgDownloadArr[i]}
                     alt={item.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-100"
                   />
                 ) : (
                   <div className="flex items-center justify-center w-full h-full text-gray-400">
-                    <span className="text-sm">No Image</span>
+                    <span className="text-sm">Loading...</span>
                   </div>
                 )}
               </div>
@@ -175,11 +175,10 @@ function ShopContent() {
               <Link
                 key={pageNum}
                 href={createPageUrl(pageNum, searchParams, pathname)}
-                className={`w-10 h-10 flex items-center justify-center rounded-lg border text-sm font-medium transition-colors ${
-                  pageNum === page
+                className={`w-10 h-10 flex items-center justify-center rounded-lg border text-sm font-medium transition-colors ${pageNum === page
                     ? "bg-yellow-400 text-gray-700 border-yellow-400"
                     : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {pageNum}
               </Link>
@@ -190,11 +189,10 @@ function ShopContent() {
         <Link
           href={createPageUrl(page + 1, searchParams, pathname)}
           prefetch={false}
-          className={`p-2 rounded-lg border ${
-            page >= meta.totalPages
+          className={`p-2 rounded-lg border ${page >= meta.totalPages
               ? "pointer-events-none opacity-50 bg-gray-100 text-gray-400"
               : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300"
-          }`}
+            }`}
           aria-disabled={page >= meta.totalPages}
         >
           <ChevronRight className="w-5 h-5" />
