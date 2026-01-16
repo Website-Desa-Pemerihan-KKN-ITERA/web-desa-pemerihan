@@ -1,6 +1,8 @@
 import { getShopItemData } from "@/services/getShopItemData-shopPage";
 import ProductGallery from "@/components/nonShared/productGallery";
 import { FaWhatsapp } from "react-icons/fa";
+import { whatsappRedirect } from "@/helpers/whatsappRedirect";
+import WhatsAppButton from "@/components/nonShared/whatsAppButton";
 
 export default async function Page({
   params,
@@ -54,10 +56,8 @@ export default async function Page({
                 <p className="text-lg font-semibold text-gray-800 break-all">
                   {shopItem.contact}
                 </p>
-                <button className="flex justify-center items-center gap-1 mt-3 w-full bg-[#075e54] hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                  <FaWhatsapp className="text-xl" />
-                  <span>Chat Penjual</span>
-                </button>
+
+                <WhatsAppButton shopItem={shopItem}/>
               </div>
             </div>
 
