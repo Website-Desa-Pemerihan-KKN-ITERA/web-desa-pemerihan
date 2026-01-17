@@ -32,6 +32,7 @@ function ArticleContent() {
 
   const [imgArr, setImgArr] = useState<string[]>([]);
   const [imgDownloadArr, setImgDownloadArr] = useState<(string | null)[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [article, setArticle] = useState<Article[]>([]);
   const [meta, setMeta] = useState<PaginationMeta>({
     currentPage: 1,
@@ -40,7 +41,7 @@ function ArticleContent() {
   });
 
   useEffect(() => {
-    getShopData();
+    getArticleData();
   }, [page]);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ function ArticleContent() {
     getPresigned();
   }, [imgArr]);
 
-  const getShopData = async () => {
+  const getArticleData = async () => {
     const token = localStorage.getItem("auth");
 
     try {
@@ -83,10 +84,26 @@ function ArticleContent() {
       }
     } catch (err) {
       console.error("Fetch Error:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const paginationList = generatePagination(meta.currentPage, meta.totalPages);
+
+  // 👉 Skeleton saat fetch client-side
+  if (isLoading) {
+    return <ArticleListSkeleton />;
+  }
+
+  // 👉 Empty state
+  if (!isLoading && article.length === 0) {
+    return (
+      <div className="text-center py-10 text-gray-500">
+        Belum ada artikel tersedia.
+      </div>
+    );
+  }
 
   return (
     <section className="pb-16">
@@ -213,16 +230,37 @@ export default function Page() {
 
 function ArticleListSkeleton() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="animate-pulse space-y-6">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="bg-white h-64 w-full border border-gray-200"
-          />
-        ))}
-      </div>
-      <div className="text-center mt-5 text-gray-500">Memuat artikel...</div>
+    <div className="max-w-7xl mx-auto px-4 py-10 animate-pulse space-y-6">
+      {[...Array(3)].map((_, i) => (
+        <div
+          key={i}
+          className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 bg-white p-5"
+        >
+          <div className="h-64 bg-gray-200" />
+          <div className="space-y-4">
+            <div className="h-6 bg-gray-200 w-3/4" />
+            <div className="h-4 bg-gray-200 w-1/3" />
+            <div className="h-4 bg-gray-200 w-full" />
+            <div className="h-4 bg-gray-200 w-5/6" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
+
+// function ArticleListSkeleton() {
+//   return (
+//     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+//       <div className="animate-pulse space-y-6">
+//         {[1, 2, 3].map((i) => (
+//           <div
+//             key={i}
+//             className="bg-white h-64 w-full border border-gray-200"
+//           />
+//         ))}
+//       </div>
+//       <div className="text-center mt-5 text-gray-500">Memuat artikel...</div>
+//     </div>
+//   );
+// }
