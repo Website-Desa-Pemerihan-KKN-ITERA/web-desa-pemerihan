@@ -16,6 +16,7 @@ interface ShopItem {
   price: number;
   slug: string;
   contact: string;
+  owner: string;
   description: string;
   imagesUrl: string[];
 }
@@ -138,18 +139,18 @@ function ShopContent() {
               {/* Bagian Konten */}
               <div className="py-4 px-2 flex flex-col flex-grow">
                 <h3
-                  className="font-medium text-gray-800 mb-1 truncate"
+                  className="font-medium text-gray-600 truncate"
                   title={item.name}
                 >
                   {item.name}
                 </h3>
 
-                <p className="font-bold text-lg mb-2">
+                <p className="font-bold text-lg">
                   {formatRupiah(item.price)}
                 </p>
 
-                <p className="text-sm text-gray-600 line-clamp-2 mb-4 flex-grow">
-                  {item.description}
+                <p className="text-sm text-gray-600 line-clamp-2 flex-grow">
+                  {item.owner}
                 </p>
               </div>
             </Link>
