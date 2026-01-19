@@ -21,6 +21,7 @@ interface Article {
   title: string;
   slug: string;
   featuredImageUrl: string;
+  shortDescription: string;
   content: string;
 }
 
@@ -54,6 +55,7 @@ function ArticleContent() {
   }, [imgArr]);
 
   const getArticleData = async () => {
+    setIsLoading(true);
     const token = localStorage.getItem("auth");
 
     try {
@@ -88,6 +90,10 @@ function ArticleContent() {
     }
   };
 
+  if (isLoading) {
+    return <ArticleListSkeleton />;
+  }
+
   const paginationList = generatePagination(meta.currentPage, meta.totalPages);
 
   // 👉 Skeleton saat fetch client-side
@@ -116,12 +122,11 @@ function ArticleContent() {
             >
               <div className="mb-5 py-5 bg-white border-b border-slate-200 hover:border-slate-300 transition-all duration-300 overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-0">
-                  <div className="relative h-64 overflow-hidden">
+                  <div className="relative h-64 overflow-hidden rounded-xl">
                     {/* Cek if imgDownloadArr exists index-nya */}
                     {imgDownloadArr[i] ? (
                       <img
                         src={imgDownloadArr[i]!}
-                        alt={article.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
@@ -153,8 +158,8 @@ function ArticleContent() {
                         </div>
                       </div>
 
-                      <p className="text-gray-700 leading-relaxed mb-4 line-clamp-2">
-                        {article.content}
+                      <p className="text-gray-700 leading-relaxed mb-4 line-clamp-4">
+                        {article.shortDescription}
                       </p>
                     </div>
                   </div>
@@ -230,7 +235,7 @@ export default function Page() {
 function ArticleListSkeleton() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-10 animate-pulse space-y-6">
-      {[...Array(3)].map((_, i) => (
+      {[...Array(8)].map((_, i) => (
         <div
           key={i}
           className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 bg-white p-5"
@@ -247,19 +252,3 @@ function ArticleListSkeleton() {
     </div>
   );
 }
-
-// function ArticleListSkeleton() {
-//   return (
-//     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-//       <div className="animate-pulse space-y-6">
-//         {[1, 2, 3].map((i) => (
-//           <div
-//             key={i}
-//             className="bg-white h-64 w-full border border-gray-200"
-//           />
-//         ))}
-//       </div>
-//       <div className="text-center mt-5 text-gray-500">Memuat artikel...</div>
-//     </div>
-//   );
-// }

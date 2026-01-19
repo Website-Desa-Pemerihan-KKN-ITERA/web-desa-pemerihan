@@ -1,82 +1,7 @@
-"use client";
-
 import { MapPin, Phone, Mail } from "lucide-react";
-import { useState, useEffect } from "react";
-import { getShopItemImages } from "@/helpers/presignedDownloadHelper";
-
-interface Article {
-  title: string;
-  date: string;
-  image: string;
-  category: string;
-  excerpt: string;
-  slug: string;
-  featuredImageUrl: string;
-  createdAt: string;
-  content: string;
-}
+import NewsSection from "@/components/nonShared/newsSection";
 
 export default function HomePage() {
-  const [newsArticles, setNewsArticles] = useState<Article[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [imgArr, setImgArr] = useState<string[]>([]);
-  const [imgDownloadArr, setImgDownloadArr] = useState<(string | null)[]>([]);
-
-  // Fetch presigned URLs for images
-  useEffect(() => {
-    if (imgArr.length === 0) return;
-
-    const getPresigned = async () => {
-      const url = await getShopItemImages(imgArr);
-      setImgDownloadArr(url);
-    };
-    getPresigned();
-  }, [imgArr]);
-
-  // Fetch articles from API
-  useEffect(() => {
-    async function fetchArticles() {
-      try {
-        const response = await fetch("/api/article/client?page=1&limit=3");
-        const result = await response.json();
-
-        if (result.success && result.data) {
-          const collectedImages = result.data.map(
-            (article: Article) => article.featuredImageUrl,
-          );
-          setImgArr(collectedImages);
-
-          const parsedArticles = result.data.map((article: Article) => ({
-            title: article.title,
-            date: new Date(article.createdAt).toLocaleDateString("id-ID", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            }),
-            image: article.featuredImageUrl,
-            category: "Berita",
-            excerpt: stripHtml(article.content).substring(0, 100) + "...",
-            slug: article.slug,
-          }));
-          setNewsArticles(parsedArticles);
-        }
-      } catch (error) {
-        console.error("Error fetching articles:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchArticles();
-  }, []);
-
-  // Helper function to strip HTML tags
-  function stripHtml(html: string): string {
-    const tmp = document.createElement("div");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  }
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -96,12 +21,6 @@ export default function HomePage() {
           <p className="text-lg md:text-xl mb-8 text-center max-w-2xl">
             Kecamatan Bengkunat, Pesisir Barat, Lampung - Indonesia
           </p>
-          <a
-            href="#about"
-            className="bg-yellow-400 text-gray-900 font-semibold px-8 py-3 rounded-full hover:bg-yellow-500 transition"
-          >
-            Jelajahi Desa →
-          </a>
         </div>
       </section>
 
@@ -145,28 +64,6 @@ export default function HomePage() {
                   dan pengrajin.
                 </p>
               </div>
-
-              {/* Statistics */}
-              <div className="grid grid-cols-3 gap-6 pt-4">
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold text-amber-700 mb-1">
-                    3,500
-                  </div>
-                  <div className="text-sm text-gray-600">Penduduk</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold text-amber-700 mb-1">
-                    1,250
-                  </div>
-                  <div className="text-sm text-gray-600">Hektar</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold text-amber-700 mb-1">
-                    45+
-                  </div>
-                  <div className="text-sm text-gray-600">UMKM</div>
-                </div>
-              </div>
             </div>
 
             {/* Right Column - Image */}
@@ -177,22 +74,6 @@ export default function HomePage() {
                   alt="Rumah Adat Desa Pemerihan"
                   className="w-full h-auto object-cover"
                 />
-                {/* Badge Overlay */}
-                <div className="absolute bottom-6 left-6 right-6">
-                  <div className="bg-yellow-400 rounded-xl p-4 shadow-lg flex items-center gap-3">
-                    <div className="w-10 h-10 bg-amber-700 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-2xl">🏆</span>
-                    </div>
-                    <div>
-                      <div className="font-bold text-gray-900 text-sm md:text-base">
-                        Desa Terbaik 2023
-                      </div>
-                      <div className="text-xs text-gray-700">
-                        Kabupaten Makmur
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -369,69 +250,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Kabar Desa (News) */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
-            Kabar Desa
-          </h2>
-          <p className="text-center text-gray-600 mb-12">
-            Berita terkini dan kegiatan terbaru dari Desa Pemerihan untuk
-            kepentingan bersama
-          </p>
-
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent"></div>
-              <p className="text-gray-600 mt-4">Memuat berita...</p>
-            </div>
-          ) : newsArticles.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600">Belum ada berita tersedia</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {newsArticles.map((article, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <div className="relative">
-                    <img
-                      src={imgDownloadArr[index] || article.image}
-                      alt={article.title}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <div className="text-sm text-gray-500 mb-2">
-                      {article.date}
-                    </div>
-                    <h4 className="font-bold text-gray-800 mb-3 line-clamp-2">
-                      {article.title}
-                    </h4>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {article.excerpt}
-                    </p>
-                    <a
-                      href={`/article/${article.slug}`}
-                      className="text-yellow-600 font-semibold text-sm hover:text-green-700 inline-flex items-center gap-1"
-                    >
-                      Baca Selengkapnya →
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="text-center mt-12">
-            <button className="bg-amber-600 text-white font-semibold px-8 py-3 rounded-full hover:bg-amber-700 transition">
-              Lihat Semua Berita →
-            </button>
-          </div>
-        </div>
-      </section>
+      <NewsSection />
 
       {/* Lokasi Desa */}
       <section id="contact" className="py-16 md:py-24 bg-gray-50">
@@ -460,50 +279,10 @@ export default function HomePage() {
             <div className="p-6 text-center bg-gradient-to-r from-green-600 to-green-700 text-white">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <MapPin className="w-5 h-5" />
-                <h3 className="text-xl font-bold">Desa Sejahtera</h3>
+                <h3 className="text-xl font-bold">Desa Pemerihan</h3>
               </div>
               <p className="text-green-100">
-                Bengkunat Belimbing, Kabupaten Pesisir Barat
-              </p>
-              <div className="mt-4 text-sm text-green-100">
-                📍 Lampung 123-45678
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow-md text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-6 h-6 text-green-700" />
-              </div>
-              <h4 className="font-bold text-gray-800 mb-2">Alamat Kantor</h4>
-              <p className="text-gray-600 text-sm">
-                Jl. Desa Sejahtera No.123, Kec. Matus, Jawa Timur
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-md text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Phone className="w-6 h-6 text-blue-700" />
-              </div>
-              <h4 className="font-bold text-gray-800 mb-2">Telepon</h4>
-              <p className="text-gray-600 text-sm">
-                Tlpn: +62123456789
-                <br />
-                Fax: +62123456789
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-md text-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-6 h-6 text-orange-700" />
-              </div>
-              <h4 className="font-bold text-gray-800 mb-2">Email</h4>
-              <p className="text-gray-600 text-sm">
-                Senin - Jumat : 08:00 - 16:00
-                <br />
-                Sabtu : 08:00 - 12:00
+                Kecamatan Bengkunat, Kabupaten Pesisir Barat, Provinsi Lampung
               </p>
             </div>
           </div>

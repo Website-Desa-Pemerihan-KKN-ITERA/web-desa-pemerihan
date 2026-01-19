@@ -9,8 +9,9 @@ import { generateSlug } from "@/helpers/generateSlugHelper";
 const ShopItem = z.object({
   name: z.string().min(2),
   price: z.int().min(3),
-  contact: z.string(),
+  contact: z.string().startsWith("08"),
   description: z.string(),
+  owner: z.string(),
   imagesUrl: z.array(z.string()),
 });
 
@@ -63,6 +64,11 @@ export async function POST(req: Request) {
   // generate slug from title
   const finalSlug = generateSlug(result.data.name);
 
+  let dialNum = result.data.contact;
+  if (dialNum.startsWith("0")) {
+    dialNum = "62" + dialNum.slice(1);
+  }
+
   // push new item to db
   try {
     await prisma.shopItems.create({
@@ -70,7 +76,8 @@ export async function POST(req: Request) {
         name: result.data.name,
         slug: finalSlug,
         price: result.data.price,
-        contact: result.data.contact,
+        owner: result.data.owner,
+        contact: dialNum,
         description: result.data.description,
         imagesUrl: result.data.imagesUrl,
       },

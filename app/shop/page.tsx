@@ -16,6 +16,7 @@ interface ShopItem {
   price: number;
   slug: string;
   contact: string;
+  owner: string;
   description: string;
   imagesUrl: string[];
 }
@@ -113,43 +114,40 @@ function ShopContent() {
   return (
     <>
       {/* Grid Layout untuk Card */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-10 lg:gap-16">
         {shopItems.map((item, i) => (
           <div
             key={item.slug}
             className="group bg-white transition-all duration-300 overflow-hidden flex flex-col"
           >
-            <Link href={`/shop/${item.slug}`}>
+            <Link href={`/shop/${item.slug}`} prefetch={false}>
               {/* Bagian Image */}
               <div className="relative aspect-square rounded-xl bg-gray-100 overflow-hidden">
-                {item.imagesUrl && item.imagesUrl.length > 0 ? (
+                {imgDownloadArr[i] ? (
                   <img
-                    src={imgDownloadArr[i] || ""} // Handle null safely
-                    alt={item.name}
+                    src={imgDownloadArr[i]}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-100"
                   />
                 ) : (
                   <div className="flex items-center justify-center w-full h-full text-gray-400">
-                    <span className="text-sm">No Image</span>
+                    <span className="text-sm">Loading...</span>
                   </div>
                 )}
               </div>
 
               {/* Bagian Konten */}
-              <div className="py-4 px-2 flex flex-col flex-grow">
-                <h3
-                  className="font-medium text-gray-800 mb-1 truncate"
+              <div className="pb-4 pt-1 flex flex-col flex-grow">
+                <p
+                  className="font-medium text-gray-600 truncate mb-0 leading-tight"
                   title={item.name}
                 >
                   {item.name}
-                </h3>
-
-                <p className="font-bold text-lg mb-2">
+                </p>
+                <p className="font-bold mt-0 leading-tight">
                   {formatRupiah(item.price)}
                 </p>
-
-                <p className="text-sm text-gray-600 line-clamp-2 mb-4 flex-grow">
-                  {item.description}
+                <p className="text-sm text-gray-600 line-clamp-2 flex-grow mt-1">
+                  {item.owner}
                 </p>
               </div>
             </Link>
@@ -221,7 +219,7 @@ export default function Page() {
 function ShopListSkeleton() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
-      {[...Array(4)].map((_, i) => (
+      {[...Array(12)].map((_, i) => (
         <div key={i} className="h-64 bg-gray-200 rounded-xl"></div>
       ))}
     </div>

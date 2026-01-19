@@ -12,6 +12,7 @@ interface ShopItemFormProps {
     name: string;
     price: number;
     contact: string;
+    owner: string;
     description: string;
     previewUrl: string[];
   };
@@ -25,6 +26,7 @@ export default function EditShopItemForm({ initialData }: ShopItemFormProps) {
   const [name, setName] = useState(initialData.name);
   const [price, setPrice] = useState(initialData.price);
   const [contact, setContact] = useState(initialData.contact);
+  const [owner, setOwner] = useState(initialData.owner);
   const [description, setDescription] = useState(initialData.description);
   const [files, setFiles] = useState<(File | null)[]>(
     Array(MAX_IMAGES).fill(null),
@@ -93,6 +95,7 @@ export default function EditShopItemForm({ initialData }: ShopItemFormProps) {
           name,
           price,
           contact,
+          owner,
           description,
           imagesUrl: imageUrls,
         }),
@@ -132,6 +135,17 @@ export default function EditShopItemForm({ initialData }: ShopItemFormProps) {
           type="number"
           value={price}
           onChange={(e) => setPrice(Number(e.target.value))}
+        />
+      </div>
+
+      {/* Owner */}
+      <div className="flex flex-col mb-5">
+        <p>Nama Pemilik/Toko:</p>
+        <input
+          className="border px-2 py-1 border-gray-300 w-1/3 rounded"
+          placeholder="Dani"
+          value={owner}
+          onChange={(e) => setOwner(e.target.value)}
         />
       </div>
 

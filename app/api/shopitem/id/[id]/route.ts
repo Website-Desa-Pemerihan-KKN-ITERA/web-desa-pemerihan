@@ -4,6 +4,7 @@ import * as z from "zod";
 import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
 import { generateSlug } from "@/helpers/generateSlugHelper";
+import { deleteImgInBucket } from "@/libs/awsS3Action";
 
 const MAX_IMAGES = 5;
 
@@ -11,6 +12,7 @@ const ShopItem = z.object({
   name: z.string(),
   price: z.coerce.number(),
   contact: z.string(),
+  owner: z.string(),
   description: z.string(),
   imagesUrl: z.array(z.string()).max(MAX_IMAGES),
 });
@@ -98,6 +100,11 @@ export async function PUT(
     }
   }
 
+  let dialNum = result.data.contact;
+  if (dialNum.startsWith("0")) {
+    dialNum = "62" + dialNum.slice(1);
+  }
+
   try {
     const updatedItem = await prisma.shopItems.update({
       where: { id: itemId },
@@ -105,7 +112,8 @@ export async function PUT(
         name: result.data.name,
         description: result.data.description,
         price: result.data.price,
-        contact: result.data.contact,
+        contact: dialNum,
+        owner: result.data.owner,
         slug: newSlug,
         imagesUrl: imageArr,
       },
@@ -145,6 +153,26 @@ export async function DELETE(
   const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
   if (!jwt.success) {
     return Response.json({ error: jwt.error }, { status: jwt.error.status });
+  }
+
+  try {
+    const shopItem = await prisma.shopItems.findUnique({
+      where: { id: itemId },
+    });
+    if (!shopItem) {
+      throw new Error("Item nya kosong");
+    }
+    await deleteImgInBucket(shopItem.imagesUrl);
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        default:
+          return Response.json(
+            { error: "Database nya error", code: err.code },
+            { status: 500 },
+          );
+      }
+    }
   }
 
   try {

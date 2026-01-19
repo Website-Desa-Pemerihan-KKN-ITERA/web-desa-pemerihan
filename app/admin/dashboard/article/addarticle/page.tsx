@@ -16,6 +16,7 @@ export default function Page() {
   const router = useRouter();
   const [value, setValue] = useState("");
   const [title, setTitle] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   const handleAddArticle = async (objectName: string) => {
@@ -31,8 +32,8 @@ export default function Page() {
         body: JSON.stringify({
           title: title,
           content: value,
+          shortDescription: shortDescription,
           featuredImageUrl: objectName,
-          // additionalImages: ["xxxxxx"]
         }),
       });
 
@@ -86,13 +87,21 @@ export default function Page() {
   return (
     <>
       <div className="m-10">
-        <div className="flex items-center gap-5 mb-5">
+        <div className="flex flex-col mb-5">
           <p>Judul:</p>
           <input
-            className="border px-2 py-1 border-gray-300"
-            size={50}
+            className="border px-2 py-1 border-gray-300 w-1/2"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-col mb-5">
+          <p>Deskripsi Singkat:</p>
+          <input
+            className="border px-2 py-1 border-gray-300 w-full"
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
           />
         </div>
 

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import DashboardSidebar from "@/components/nonShared/dashboardSidebar";
 import { MdAddBusiness } from "react-icons/md";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { CiTrash } from "react-icons/ci";
 import { timeFormatter } from "@/helpers/timeFormatterToID";
 import { RiExpandDiagonalLine } from "react-icons/ri";
@@ -24,10 +24,9 @@ interface ShopItem {
   imagesUrl: [];
 }
 
-export default function Page() {
+export default function ShopDashboard() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  // const [shopItem, setShopItem] = useState<any>([]);
   const [shopItem, setShopItem] = useState<ShopItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [meta, setMeta] = useState({
@@ -35,8 +34,7 @@ export default function Page() {
     totalPages: 1,
     totalItems: 0,
   });
-  
-  const [errorMsg, setErrorMsg] = useState("");
+
   const router = useRouter();
   const page = Number(searchParams.get("page")) || 1;
 
@@ -48,16 +46,13 @@ export default function Page() {
     setIsLoading(true);
     const token = localStorage.getItem("auth");
     try {
-      const res = await fetch(
-        `/api/shopitem?page=${page}&limit=5`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`/api/shopitem?page=${page}&limit=5`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await res.json();
 
@@ -92,8 +87,6 @@ export default function Page() {
           return;
         }
       }
-
-      setErrorMsg(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +125,7 @@ export default function Page() {
         <div className="font-bold text-4xl text-[#333446] mb-6">Toko</div>
 
         <div className="mb-6 flex">
-          <Link prefetch={false} href="/admin/dashboard/shop/addItem">
+          <Link prefetch={false} href="/admin/dashboard/shop/additem">
             <span className="flex items-center gap-2 rounded-2xl py-2 px-4 bg-[#F0F0F0] text-[#333446] font-bold cursor-pointer hover:bg-[#ACADAD] text-sm transition-colors">
               <MdAddBusiness className="text-xl" />
               Tambah Barang di Toko
@@ -147,7 +140,7 @@ export default function Page() {
             Belum ada produk di halaman ini.
           </div>
         ) : (
-          shopItem.map((item: any) => (
+          shopItem.map((item) => (
             <div key={item.id} className="flex flex-col gap-4 mb-5">
               <div className="border border-[#ACACAF] rounded-2xl px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>

@@ -10,7 +10,7 @@ const Article = z.object({
   title: z.string().min(5),
   content: z.string().min(5),
   featuredImageUrl: z.string().min(5),
-  // additionalImages: z.array(z.string().min(5)),
+  shortDescription: z.string().min(5),
 });
 
 const listPagingSchema = z.object({
@@ -64,15 +64,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // try {
-  //   await minioClient.statObject(
-  //     minioConf.BUCKET_NAME,
-  //     result.data.featuredImageUrl,
-  //   );
-  // } catch (err) {
-  //   return { success: false, error: "File tidak ditemukan di storage server." };
-  // }
-
   // generate slug from title
   const finalSlug = generateSlug(result.data.title);
 
@@ -94,7 +85,7 @@ export async function POST(req: Request) {
         slug: finalSlug,
         content: result.data.content,
         featuredImageUrl: result.data.featuredImageUrl,
-        //additionalImages: result.data.additionalImages,
+        shortDescription: result.data.shortDescription,
       },
     });
   } catch (err) {

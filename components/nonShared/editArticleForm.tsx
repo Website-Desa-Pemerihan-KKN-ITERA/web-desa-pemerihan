@@ -17,6 +17,7 @@ interface ArticleFormProps {
     id: number;
     title: string;
     content: string;
+    shortDescription: string;
     previewUrl: string | null;
   };
 }
@@ -26,6 +27,9 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
 
   const [value, setValue] = useState(initialData.content);
   const [title, setTitle] = useState(initialData.title);
+  const [shortDescription, setShortDescription] = useState(
+    initialData.shortDescription,
+  );
   const [file, setFile] = useState<File | null>(null);
 
   const currentImagePreview = file
@@ -45,6 +49,7 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
         body: JSON.stringify({
           title: title,
           content: value,
+          shortDescription: shortDescription,
           featuredImageUrl: objectName || undefined,
         }),
       });
@@ -62,7 +67,7 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
       console.error(err);
     }
   };
-  console.log(file?.size);
+
   const handleProcess = async () => {
     try {
       let uploadedObjectName = null;
@@ -108,12 +113,21 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
     <div className="m-10">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Edit Artikel</h1>
 
-      <div className="flex items-center gap-5 mb-5">
+      <div className="flex flex-col mb-5">
         <p className="min-w-[100px]">Judul:</p>
         <input
-          className="border px-2 py-1 border-gray-300 w-full rounded"
+          className="border px-2 py-1 border-gray-300 w-1/2"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col mb-5">
+        <p className="min-w-[100px]">Deskripsi Singkat:</p>
+        <input
+          className="border px-2 py-1 border-gray-300 w-full"
+          value={shortDescription}
+          onChange={(e) => setShortDescription(e.target.value)}
         />
       </div>
 

@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
@@ -58,12 +57,7 @@ export default function Page() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <div className="flex flex-col justify-around">
-            <div className="justify-end flex text-blue-400 text-sm">
-              <Link href="/auth/register">
-                <span>Belum punya akun?</span>
-              </Link>
-            </div>
+          <div className="justify-around mt-5">
             <div className="flex justify-center mt-2">
               <div
                 className="bg-slate-200 px-4 py-1 rounded-xl border border-slate-300 cursor-pointer hover:bg-slate-300"

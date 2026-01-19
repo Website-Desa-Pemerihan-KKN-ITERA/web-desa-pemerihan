@@ -24,6 +24,7 @@ export default async function EditPage({
     id: article.id,
     title: article.title,
     content: article.content,
+    shortDescription: article.shortDescription,
     previewUrl: imageUrl,
   };
 

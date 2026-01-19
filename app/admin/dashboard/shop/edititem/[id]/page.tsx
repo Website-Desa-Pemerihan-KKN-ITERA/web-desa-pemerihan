@@ -25,6 +25,7 @@ export default async function EditPage({
     name: item.name,
     price: Number(item.price),
     contact: item.contact,
+    owner: item.owner,
     description: item.description,
     previewUrl: (imageUrls ?? []).filter(
       (url): url is string => typeof url === "string",

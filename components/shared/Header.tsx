@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 
 interface NavLinkProps {
   href: string;
@@ -96,23 +97,23 @@ export default function Header() {
 // Komponen link untuk Desktop
 function NavLink({ href, children }: NavLinkProps) {
   return (
-    <a
+    <Link
       href={href}
       className="text-sm font-medium text-gray-600 hover:text-green-700 transition-colors"
     >
       {children}
-    </a>
+    </Link>
   );
 }
 
 // Komponen link untuk Mobile (lebih besar area kliknya)
 function MobileNavLink({ href, children }: NavLinkProps) {
   return (
-    <a
+    <Link
       href={href}
       className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-green-700 hover:bg-gray-50 rounded-md transition-colors"
     >
       {children}
-    </a>
+    </Link>
   );
 }

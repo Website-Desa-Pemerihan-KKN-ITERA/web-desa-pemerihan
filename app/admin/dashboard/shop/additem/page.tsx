@@ -10,6 +10,7 @@ export default function Page() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [contact, setContact] = useState("");
+  const [owner, setOwner] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<(File | null)[]>([]);
   const fileInputRef = useRef<(HTMLInputElement | null)[]>([]);
@@ -30,6 +31,7 @@ export default function Page() {
           name: name,
           price: price,
           contact: contact,
+          owner: owner,
           description: description,
           imagesUrl: objectName,
         }),
@@ -113,7 +115,6 @@ export default function Page() {
   const handleCustomClick = (index: number) => {
     fileInputRef.current[index]?.click();
   };
-  console.log(file);
 
   return (
     <>
@@ -137,6 +138,17 @@ export default function Page() {
             type="number"
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
+          />
+        </div>
+
+        {/* Input nama penjual */}
+        <div className="flex flex-col mb-5">
+          <p>Nama Pemilik/Toko:</p>
+          <input
+            className="border px-2 py-1 border-gray-300 w-1/3"
+            placeholder="Dani"
+            value={owner}
+            onChange={(e) => setOwner(e.target.value)}
           />
         </div>
 
