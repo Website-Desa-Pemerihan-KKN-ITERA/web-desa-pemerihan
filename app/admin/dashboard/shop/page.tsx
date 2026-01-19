@@ -141,7 +141,7 @@ export default function Page() {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-10 text-gray-500">Memuat data...</div>
+          <ShopItemListSkeleton />
         ) : shopItem.length === 0 ? (
           <div className="text-center py-10 text-gray-500">
             Belum ada produk di halaman ini.
@@ -232,6 +232,29 @@ export default function Page() {
           </Link>
         </div>
       </main>
+    </div>
+  );
+}
+
+function ShopItemListSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="flex flex-col gap-4">
+          <div className="border border-[#ACACAF] rounded-2xl px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex-1 space-y-3">
+              <div className="h-6 bg-gray-300 rounded w-1/3" />
+              <div className="h-4 bg-gray-200 rounded w-1/4" />
+              <div className="h-4 bg-gray-200 rounded w-2/5" />
+            </div>
+            <div className="flex gap-1">
+              <div className="w-10 h-10 bg-gray-200 rounded" />
+              <div className="w-10 h-10 bg-gray-200 rounded" />
+              <div className="w-10 h-10 bg-gray-200 rounded" />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
