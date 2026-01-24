@@ -1,3 +1,20 @@
+// model Location {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   name      String
+//   entryFee  Int
+//   slug      String   @unique
+//   contact   String
+//   owner     String
+//   openTimeFrom      DateTime  @map("open_time_from")
+//   openTimeTo        DateTime  @map("open_time_to")
+//   openDay   String[] @map("open_day")
+//   description       String   @db.Text
+//   imagesUrl String[] @map("images")
+// }
+//
+//
+//
 import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
 import * as z from "zod";
@@ -8,12 +25,16 @@ import { generateSlug } from "@/helpers/generateSlugHelper";
 
 const MAX_IMAGES = 5;
 
-const ShopItem = z.object({
-  name: z.string().min(2),
-  price: z.int().min(3),
-  contact: z.string().startsWith("08"),
+const TourSpot = z.object({
+  name: z.string().min(1),
+  entryFee: z.number(),
+  slug: z.string().min(1),
+  contact: z.string().min(10).max(13),
+  owner: z.string().min(1),
+  openTimeFrom: z.iso.datetime(),
+  openTimeTo: z.iso.datetime(), // no less than function so i dont handle case where openTimeTo are less than openTimeFrom,
+  openDay: z.array(z.string()),
   description: z.string(),
-  owner: z.string(),
   imagesUrl: z.array(z.string()).max(MAX_IMAGES),
 });
 
@@ -29,7 +50,7 @@ interface MyJwtPayload extends JwtPayload {
 //////////
 export async function POST(req: Request) {
   // validate body
-  const result = await validateBody(req, ShopItem);
+  const result = await validateBody(req, TourSpot);
   if (!result.success) {
     return Response.json(
       { error: result.error },
@@ -73,13 +94,16 @@ export async function POST(req: Request) {
 
   // push new item to db
   try {
-    await prisma.shopItems.create({
+    await prisma.location.create({
       data: {
         name: result.data.name,
+        entryFee: result.data.entryFee,
         slug: finalSlug,
-        price: result.data.price,
-        owner: result.data.owner,
         contact: dialNum,
+        owner: result.data.owner,
+        openTimeFrom: result.data.openTimeFrom,
+        openTimeTo: result.data.openTimeTo,
+        openDay: result.data.openDay,
         description: result.data.description,
         imagesUrl: result.data.imagesUrl,
       },
@@ -127,7 +151,7 @@ export async function GET(req: Request) {
     );
   }
 
-  let articleList;
+  let tourSpotList;
   let dataCount = 0;
   const { searchParams } = new URL(req.url);
   const queryParams = {
@@ -145,15 +169,15 @@ export async function GET(req: Request) {
   const skip = (page - 1) * limit;
 
   try {
-    [articleList, dataCount] = await prisma.$transaction([
-      prisma.shopItems.findMany({
+    [tourSpotList, dataCount] = await prisma.$transaction([
+      prisma.location.findMany({
         skip: skip,
         take: limit,
         orderBy: {
           createdAt: "desc",
         },
       }),
-      prisma.shopItems.count(),
+      prisma.location.count(),
     ]);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
@@ -185,7 +209,7 @@ export async function GET(req: Request) {
 
   return Response.json({
     success: true,
-    data: articleList,
+    data: tourSpotList,
     meta: {
       page,
       limit,

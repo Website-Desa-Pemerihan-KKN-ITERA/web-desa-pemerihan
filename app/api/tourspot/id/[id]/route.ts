@@ -1,0 +1,214 @@
+import prisma from "@/libs/prisma";
+import { Prisma } from "@/generated/prisma/client";
+import * as z from "zod";
+import { validateBody } from "@/helpers/requestHelper";
+import { validateJwtAuthHelper } from "@/helpers/authHelper";
+import { generateSlug } from "@/helpers/generateSlugHelper";
+import { deleteImgInBucket } from "@/libs/awsS3Action";
+
+const MAX_IMAGES = 5;
+
+const TourSpot = z.object({
+  name: z.string().min(1),
+  entryFee: z.number(),
+  slug: z.string().min(1),
+  contact: z.string().min(10).max(13),
+  owner: z.string().min(1),
+  openTimeFrom: z.iso.datetime(),
+  openTimeTo: z.iso.datetime(), // no less than function so i dont handle case where openTimeTo are less than openTimeFrom,
+  openDay: z.array(z.string()),
+  description: z.string(),
+  imagesUrl: z.array(z.string()).max(MAX_IMAGES),
+});
+
+const isObjectKey = (value: string) => {
+  return !value.startsWith("http://") && !value.startsWith("https://");
+};
+
+/////////
+// PUT //
+/////////
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const imageArr: string[] = [];
+  let oldItem;
+  let newSlug;
+
+  const locationId = parseInt(id);
+  if (isNaN(locationId)) {
+    return Response.json({ error: "ID Item tidak valid" }, { status: 400 });
+  }
+
+  const result = await validateBody(req, TourSpot);
+  if (!result.success) {
+    return Response.json(
+      { error: result.error },
+      { status: result.error.status },
+    );
+  }
+
+  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+  if (!jwt.success) {
+    return Response.json({ error: jwt.error }, { status: jwt.error.status });
+  }
+
+  try {
+    oldItem = await prisma.location.findUnique({
+      where: { id: locationId },
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        default:
+          return Response.json(
+            { error: "Database nya error", code: err.code },
+            { status: 500 },
+          );
+      }
+    }
+  }
+
+  if (!oldItem) {
+    return Response.json({ error: "Item tidak ditemukan" }, { status: 404 });
+  }
+
+  newSlug = oldItem.slug;
+  if (result.data.name !== oldItem.name) {
+    newSlug = generateSlug(result.data.name);
+
+    const checkSlug = await prisma.location.findUnique({
+      where: { slug: newSlug },
+    });
+
+    if (checkSlug && checkSlug.id !== locationId) {
+      return Response.json(
+        {
+          error: "Judul ini menghasilkan slug yang sudah dipakai artikel lain",
+        },
+        { status: 409 },
+      );
+    }
+  }
+
+  for (let i = 0; i < MAX_IMAGES; i++) {
+    const inChanges = result.data.imagesUrl?.[i];
+    const oldUrl = oldItem.imagesUrl?.[i];
+
+    if (typeof inChanges === "string" && isObjectKey(inChanges)) {
+      imageArr.push(inChanges);
+    } else if (typeof oldUrl === "string") {
+      imageArr.push(oldUrl);
+    }
+  }
+
+  let dialNum = result.data.contact;
+  if (dialNum.startsWith("0")) {
+    dialNum = "62" + dialNum.slice(1);
+  }
+
+  try {
+    const updatedItem = await prisma.location.update({
+      where: { id: locationId },
+      data: {
+        name: result.data.name,
+        entryFee: result.data.entryFee,
+        slug: newSlug,
+        contact: dialNum,
+        owner: result.data.owner,
+        openTimeFrom: result.data.openTimeFrom,
+        openTimeTo: result.data.openTimeTo,
+        openDay: result.data.openDay,
+        description: result.data.description,
+        imagesUrl: imageArr,
+      },
+    });
+
+    return Response.json({
+      message: "Update berhasil",
+      data: updatedItem,
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        default:
+          return Response.json(
+            { error: "Database nya error", code: err.code },
+            { status: 500 },
+          );
+      }
+    }
+  }
+}
+
+////////////
+// DELETE //
+////////////
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+
+  const locationId = parseInt(id);
+  if (isNaN(locationId)) {
+    return Response.json({ error: "ID Item tidak valid" }, { status: 400 });
+  }
+
+  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+  if (!jwt.success) {
+    return Response.json({ error: jwt.error }, { status: jwt.error.status });
+  }
+
+  try {
+    const tourSpot = await prisma.location.findUnique({
+      where: { id: locationId },
+    });
+    if (!tourSpot) {
+      throw new Error("Item nya kosong");
+    }
+    await deleteImgInBucket(tourSpot.imagesUrl);
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        default:
+          return Response.json(
+            { error: "Database nya error", code: err.code },
+            { status: 500 },
+          );
+      }
+    }
+  }
+
+  try {
+    const deletedItem = await prisma.location.delete({
+      where: { id: locationId },
+    });
+
+    return Response.json({
+      message: "Item berhasil dihapus",
+      data: deletedItem,
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case "P2025":
+          return Response.json(
+            { error: "Item tidak ditemukan" },
+            { status: 404 },
+          );
+        default:
+          return Response.json(
+            { error: "Database nya error", code: err.code },
+            { status: 500 },
+          );
+      }
+    }
+    return Response.json(
+      { error: "Terjadi kesalahan internal server" },
+      { status: 500 },
+    );
+  }
+}
