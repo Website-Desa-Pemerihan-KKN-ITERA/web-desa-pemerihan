@@ -8,6 +8,8 @@ import {
 import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { getShopItemImages } from "@/helpers/presignedDownloadHelper";
+import { IoTimeOutline } from "react-icons/io5";
+import { FaRegCalendarAlt } from "react-icons/fa";
 
 interface TourSpot {
   createdAt: string;
@@ -141,22 +143,32 @@ function TourSpotContent() {
               {/* Bagian Konten */}
               <div className="pb-4 pt-1 flex flex-col flex-grow">
                 <p className="text-3xl font-semibold">{item.name}</p>
-                <p className="font-medium text-gray-700">
-                  Buka jam{" "}
-                  {new Date(item.openTimeFrom).toLocaleTimeString("id-ID", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  })}{" "}
-                  -{" "}
-                  {new Date(item.openTimeTo).toLocaleTimeString("id-ID", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  })}{" "}
-                  WIB
-                </p>
-                <p className="font-medium text-gray-700">Setiap hari</p>
+                <div className="flex flex-row items-center gap-2">
+                  <IoTimeOutline className="text-xl text-gray-700" />
+                  <p className="font-medium text-gray-700">
+                    Buka jam{" "}
+                    {new Date(item.openTimeFrom).toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}{" "}
+                    -{" "}
+                    {new Date(item.openTimeTo).toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}{" "}
+                    WIB
+                  </p>
+                </div>
+                <div className="flex gap-2 items-center text-gray-700">
+                  <FaRegCalendarAlt className="text-gray-700 text-xl" />
+                  <div>
+                    {item.openDay.map((item, index) => (
+                      <span key={index}>{item} </span>
+                    ))}
+                  </div>
+                </div>
                 <p className="text-sm text-gray-600 line-clamp-2 flex-grow mt-1">
                   {item.owner}
                 </p>

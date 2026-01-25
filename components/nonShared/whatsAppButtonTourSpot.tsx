@@ -34,7 +34,7 @@ export default function WhatsAppButtonTourSpot({
       className="flex justify-center items-center gap-1 mt-3 w-full bg-[#075e54] hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-lg transition-colors"
     >
       <FaWhatsapp className="text-xl" />
-      <span>Chat Penjual</span>
+      <span>Chat Lebih Lanjut</span>
     </button>
   );
 }
