@@ -30,6 +30,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const imageArr: string[] = [];
+  const imageDelArr: string[] = [];
   let oldItem;
   let newSlug;
 
@@ -95,10 +96,15 @@ export async function PUT(
 
     if (typeof inChanges === "string" && isObjectKey(inChanges)) {
       imageArr.push(inChanges);
+      if (typeof oldUrl === "string") {
+        imageDelArr.push(oldUrl);
+      }
     } else if (typeof oldUrl === "string") {
       imageArr.push(oldUrl);
     }
   }
+
+  await deleteImgInBucket(imageDelArr);
 
   let dialNum = result.data.contact;
   if (dialNum.startsWith("0")) {
