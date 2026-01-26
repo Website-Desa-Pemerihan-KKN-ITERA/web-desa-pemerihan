@@ -5,6 +5,7 @@ import { JwtPayload } from "jsonwebtoken";
 import prisma from "@/libs/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { generateSlug } from "@/helpers/generateSlugHelper";
+import { deleteImgInBucket } from "@/libs/awsS3Action";
 
 const MAX_IMAGES = 5;
 
@@ -34,6 +35,13 @@ export async function POST(req: Request) {
   // validate body
   const result = await validateBody(req, TourSpot);
   if (!result.success) {
+    const { imagesUrl } = result.error.body as Partial<
+      z.infer<typeof TourSpot>
+    >;
+    if (Array.isArray(imagesUrl)) {
+      await deleteImgInBucket(imagesUrl);
+    }
+
     return Response.json(
       { error: result.error },
       { status: result.error.status },

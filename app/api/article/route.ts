@@ -5,6 +5,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
 import { generateSlug } from "@/helpers/generateSlugHelper";
+import { deleteImgInBucket } from "@/libs/awsS3Action";
 
 const Article = z.object({
   title: z.string().min(5),
@@ -31,7 +32,15 @@ interface MyJwtPayload extends JwtPayload {
 export async function POST(req: Request) {
   // validate body
   const result = await validateBody(req, Article);
+
   if (!result.success) {
+    const { featuredImageUrl } = result.error.body as Partial<
+      z.infer<typeof Article>
+    >;
+
+    if (typeof featuredImageUrl === "string") {
+      await deleteImgInBucket([featuredImageUrl]);
+    }
     return Response.json(
       { error: result.error },
       { status: result.error.status },
