@@ -5,6 +5,7 @@ import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
 import { generateSlug } from "@/helpers/generateSlugHelper";
 import { deleteImgInBucket } from "@/libs/awsS3Action";
+import { mergeImages } from "@/helpers/imgReplaceCompare";
 
 const MAX_IMAGES = 5;
 
@@ -29,8 +30,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const imageArr: string[] = [];
-  const imageDelArr: string[] = [];
   let oldItem;
   let newSlug;
 
@@ -90,19 +89,11 @@ export async function PUT(
     }
   }
 
-  for (let i = 0; i < MAX_IMAGES; i++) {
-    const inChanges = result.data.imagesUrl?.[i];
-    const oldUrl = oldItem.imagesUrl?.[i];
-
-    if (typeof inChanges === "string" && isObjectKey(inChanges)) {
-      imageArr.push(inChanges);
-      if (typeof oldUrl === "string") {
-        imageDelArr.push(oldUrl);
-      }
-    } else if (typeof oldUrl === "string") {
-      imageArr.push(oldUrl);
-    }
-  }
+  const { imageArr, imageDelArr } = mergeImages(
+    MAX_IMAGES,
+    result.data.imagesUrl,
+    oldItem.imagesUrl,
+  );
 
   await deleteImgInBucket(imageDelArr);
 
