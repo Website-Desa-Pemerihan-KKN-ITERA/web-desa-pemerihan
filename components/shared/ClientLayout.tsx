@@ -25,6 +25,7 @@ export default function ClientLayout({
     "/admin/dashboard/shop",
     "/admin/dashboard/shop/addItem",
     "/admin/dashboard/shop/edititem",
+    "/admin/dashboard/tourspot",
   ];
 
   // Cek apakah pathname saat ini ada di daftar disableLayout

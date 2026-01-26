@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MdArticle, MdSwitchAccount } from "react-icons/md";
+import { MdArticle, MdSwitchAccount, MdOutlinePlace } from "react-icons/md";
 import { FaShop } from "react-icons/fa6";
 
 export default function DashboardSidebar() {
@@ -22,6 +22,14 @@ export default function DashboardSidebar() {
         >
           <FaShop size={18} />
           <span>Toko</span>
+        </Link>
+
+        <Link
+          href={"/admin/dashboard/tourspot"}
+          className="flex items-center gap-3 px-2 py-2 hover:bg-[#252634] rounded-md transition-colors"
+        >
+          <MdOutlinePlace size={18} />
+          <span>Pariwisata</span>
         </Link>
 
         <Link

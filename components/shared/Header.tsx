@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface NavLinkProps {
@@ -9,9 +9,31 @@ interface NavLinkProps {
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [hideHeader, setHideHeader] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setHideHeader(true);
+        setIsOpen(false);
+      } else {
+        setHideHeader(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+    <header
+      className={`sticky top-0 z-50 bg-white border-b border-gray-100 transition-transform duration-300 ${hideHeader ? "-translate-y-full" : "translate-y-0"}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo Section */}
@@ -35,7 +57,8 @@ export default function Header() {
             <NavLink href="/tentang">Tentang</NavLink>
             <NavLink href="/shop">Produk UMKM</NavLink>
             <NavLink href="/article">Artikel</NavLink>
-            <NavLink href="/lokasi">Lokasi</NavLink>
+            <NavLink href="/location">Lokasi</NavLink>
+            <NavLink href="/lokasi">Lokasi (Deprecated)</NavLink>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -86,7 +109,8 @@ export default function Header() {
             <MobileNavLink href="/tentang">Tentang</MobileNavLink>
             <MobileNavLink href="/shop">Produk UMKM</MobileNavLink>
             <MobileNavLink href="/article">Artikel</MobileNavLink>
-            <MobileNavLink href="/lokasi">Lokasi</MobileNavLink>
+            <MobileNavLink href="/location">Lokasi</MobileNavLink>
+            <MobileNavLink href="/lokasi">Lokasi (Deprecated)</MobileNavLink>
           </nav>
         </div>
       )}

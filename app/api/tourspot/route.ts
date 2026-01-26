@@ -1,20 +1,3 @@
-// model Location {
-//   id        Int      @id @default(autoincrement())
-//   createdAt DateTime @default(now())
-//   name      String
-//   entryFee  Int
-//   slug      String   @unique
-//   contact   String
-//   owner     String
-//   openTimeFrom      DateTime  @map("open_time_from")
-//   openTimeTo        DateTime  @map("open_time_to")
-//   openDay   String[] @map("open_day")
-//   description       String   @db.Text
-//   imagesUrl String[] @map("images")
-// }
-//
-//
-//
 import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
 import * as z from "zod";
@@ -28,7 +11,6 @@ const MAX_IMAGES = 5;
 const TourSpot = z.object({
   name: z.string().min(1),
   entryFee: z.number(),
-  slug: z.string().min(1),
   contact: z.string().min(10).max(13),
   owner: z.string().min(1),
   openTimeFrom: z.iso.datetime(),

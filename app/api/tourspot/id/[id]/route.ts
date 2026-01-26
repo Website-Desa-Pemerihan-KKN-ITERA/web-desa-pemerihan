@@ -11,7 +11,6 @@ const MAX_IMAGES = 5;
 const TourSpot = z.object({
   name: z.string().min(1),
   entryFee: z.number(),
-  slug: z.string().min(1),
   contact: z.string().min(10).max(13),
   owner: z.string().min(1),
   openTimeFrom: z.iso.datetime(),
