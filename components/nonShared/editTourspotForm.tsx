@@ -14,6 +14,7 @@ interface ShopItemFormProps {
     contact: string;
     owner: string;
     description: string;
+    mapsUrl: string;
     previewUrl: string[];
     openDay: string[];
     openTimeFrom: Date;
@@ -32,6 +33,7 @@ export default function EditTourshopForm({ initialData }: ShopItemFormProps) {
   const [price, setPrice] = useState(initialData.entryFee);
   const [contact, setContact] = useState(initialData.contact);
   const [owner, setOwner] = useState(initialData.owner);
+  const [mapsUrl, setMapsUrl] = useState(initialData.mapsUrl);
   const [description, setDescription] = useState(initialData.description);
   const [files, setFiles] = useState<(File | null)[]>(
     Array(MAX_IMAGES).fill(null),
@@ -128,6 +130,7 @@ export default function EditTourshopForm({ initialData }: ShopItemFormProps) {
           contact,
           owner,
           openDay: finalOpenDays,
+          mapsUrl,
           openTimeFrom: openDate.toISOString(),
           openTimeTo: closeDate.toISOString(),
           description,
@@ -191,6 +194,17 @@ export default function EditTourshopForm({ initialData }: ShopItemFormProps) {
           placeholder="081234567890"
           value={contact}
           onChange={(e) => setContact(e.target.value)}
+        />
+      </div>
+
+      {/* Contact */}
+      <div className="flex flex-col mb-5">
+        <p>Nomor Whatsapp:</p>
+        <input
+          className="border px-2 py-1 border-gray-300 w-1/3 rounded"
+          placeholder="https://xxxxxxxxxx"
+          value={mapsUrl}
+          onChange={(e) => setMapsUrl(e.target.value)}
         />
       </div>
 

@@ -18,6 +18,7 @@ const TourSpot = z.object({
   openTimeTo: z.iso.datetime(), // no less than function so i dont handle case where openTimeTo are less than openTimeFrom,
   openDay: z.array(z.string()),
   description: z.string(),
+  mapsUrl: z.string(),
   imagesUrl: z.array(z.string()).max(MAX_IMAGES),
 });
 
@@ -125,6 +126,7 @@ export async function PUT(
         openTimeFrom: result.data.openTimeFrom,
         openTimeTo: result.data.openTimeTo,
         openDay: result.data.openDay,
+        mapsUrl: result.data.mapsUrl,
         description: result.data.description,
         imagesUrl: imageArr,
       },

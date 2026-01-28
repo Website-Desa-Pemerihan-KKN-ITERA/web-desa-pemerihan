@@ -26,7 +26,6 @@ export async function getTourSpotData(slug: string): Promise<ShopItemResult> {
     });
 
     const imageUrlArray = await Promise.all(uploadPromises);
-    console.log(imageUrlArray);
 
     return [itemShop, imageUrlArray];
   } catch (error) {

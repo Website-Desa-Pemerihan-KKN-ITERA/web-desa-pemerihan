@@ -29,6 +29,7 @@ export default async function EditPage({
     openTimeTo: item.openTimeTo,
     contact: item.contact,
     owner: item.owner,
+    mapsUrl: item.mapsUrl,
     description: item.description,
     previewUrl: (imageUrls ?? []).filter(
       (url): url is string => typeof url === "string",
