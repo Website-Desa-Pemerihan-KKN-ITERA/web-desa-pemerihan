@@ -51,7 +51,7 @@ export default async function Page({ params }: Props) {
         </header>
 
         {/* FEATURED IMAGE */}
-        <div className="mb-10 overflow-hidden rounded-xl bg-gray-50 border border-gray-100">
+        <div className="overflow-hidden rounded-xl bg-gray-50 border border-gray-100">
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -64,6 +64,13 @@ export default async function Page({ params }: Props) {
             </div>
           )}
         </div>
+        <p className="mb-5 text-gray-600 font-bold">
+          {new Date(article.createdAt).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
 
         {/* CONTENT BODY */}
         <div

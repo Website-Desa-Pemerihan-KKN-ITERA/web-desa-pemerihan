@@ -96,12 +96,10 @@ function ArticleContent() {
 
   const paginationList = generatePagination(meta.currentPage, meta.totalPages);
 
-  // 👉 Skeleton saat fetch client-side
   if (isLoading) {
     return <ArticleListSkeleton />;
   }
 
-  // 👉 Empty state
   if (!isLoading && article.length === 0) {
     return (
       <div className="text-center py-10 text-gray-500">
