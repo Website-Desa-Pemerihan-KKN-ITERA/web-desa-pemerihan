@@ -125,7 +125,7 @@ function TourSpotContent() {
             key={item.slug}
             className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
           >
-            <Link href={`/location/${item.slug}`} prefetch={false}>
+            <Link href={`/location/${item.slug}`}>
               {/* IMAGE */}
               <div className="relative h-56 overflow-hidden">
                 {imgDownloadArr[i] ? (
@@ -212,7 +212,6 @@ function TourSpotContent() {
 
         <Link
           href={createPageUrl(page + 1, searchParams, pathname)}
-          prefetch={false}
           className={`p-2 rounded-lg border ${
             page >= meta.totalPages
               ? "pointer-events-none opacity-50 bg-gray-100 text-gray-400"

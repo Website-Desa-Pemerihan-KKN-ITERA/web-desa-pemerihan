@@ -199,7 +199,6 @@ function ArticleContent() {
 
           <Link
             href={createPageUrl(page + 1, searchParams, pathname)}
-            prefetch={false}
             className={`p-2 rounded-lg border ${
               page >= meta.totalPages
                 ? "pointer-events-none opacity-50 bg-gray-100 text-gray-400"

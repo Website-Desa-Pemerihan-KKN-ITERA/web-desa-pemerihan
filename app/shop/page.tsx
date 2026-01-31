@@ -120,7 +120,7 @@ function ShopContent() {
             key={item.slug}
             className="group bg-white transition-all duration-300 overflow-hidden flex flex-col"
           >
-            <Link href={`/shop/${item.slug}`} prefetch={false}>
+            <Link href={`/shop/${item.slug}`}>
               {/* Bagian Image */}
               <div className="relative aspect-square rounded-xl bg-gray-100 overflow-hidden">
                 {imgDownloadArr[i] ? (
@@ -187,7 +187,6 @@ function ShopContent() {
 
         <Link
           href={createPageUrl(page + 1, searchParams, pathname)}
-          prefetch={false}
           className={`p-2 rounded-lg border ${
             page >= meta.totalPages
               ? "pointer-events-none opacity-50 bg-gray-100 text-gray-400"
