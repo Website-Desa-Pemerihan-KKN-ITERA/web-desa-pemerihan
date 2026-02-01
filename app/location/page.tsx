@@ -145,8 +145,8 @@ function TourSpotContent() {
                 </h2>
 
                 {/* Jam buka */}
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <IoTimeOutline className="text-base" />
+                <div className="flex items-center gap-2 font-semibold text-sm text-gray-600">
+                  <IoTimeOutline className="text-lg text-amber-600" />
                   <span>
                     {new Date(item.openTimeFrom).toLocaleTimeString("id-ID", {
                       hour: "2-digit",
@@ -165,15 +165,18 @@ function TourSpotContent() {
 
                 {/* Hari buka */}
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FaRegCalendarAlt />
-                  <span className="line-clamp-1">
-                    {item.openDay.join(", ")}
+                  <FaRegCalendarAlt className="text-lg text-amber-600 mt-0.5" />
+                  <span className="line-clamp-1 gap-1 flex flex-wrap">
+                    {item.openDay.map((day, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs"
+                      >
+                        {day}
+                      </span>
+                    ))}
                   </span>
                 </div>
-                {/* Owner */}
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                  Pengelola: {item.owner}
-                </p>
               </div>
             </Link>
           </div>

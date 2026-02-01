@@ -84,7 +84,7 @@ export default function TopTourspot() {
               <Link
                 href={`/location/${ts.slug}`}
                 key={index}
-                className="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-sm transition-all duration-100"
+                className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-100"
               >
                 {/* Image */}
                 <div className="relative aspect-square overflow-hidden">
