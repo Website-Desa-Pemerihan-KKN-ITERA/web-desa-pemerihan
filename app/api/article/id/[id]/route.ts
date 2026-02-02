@@ -90,9 +90,8 @@ export async function PUT(
   }
 
   if (
-    typeof oldArticle.featuredImageUrl === "string" &&
-    oldArticle.featuredImageUrl.length > 0 &&
-    result.data.featuredImageUrl !== oldArticle.featuredImageUrl
+    typeof result.data.featuredImageUrl === "string" &&
+    typeof oldArticle.featuredImageUrl === "string"
   ) {
     await deleteImgInBucket([oldArticle.featuredImageUrl]);
   }
