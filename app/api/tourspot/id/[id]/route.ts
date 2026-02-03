@@ -105,10 +105,6 @@ export async function PUT(
     oldLocation.imagesUrl,
   );
 
-  if (imageDelArr?.length > 0) {
-    await deleteImgInBucket(imageDelArr);
-  }
-
   let dialNum = result.data.contact;
   if (dialNum.startsWith("0")) {
     dialNum = "62" + dialNum.slice(1);
@@ -131,6 +127,11 @@ export async function PUT(
         imagesUrl: imageArr,
       },
     });
+
+    // moved here cause i think it is safer to delete after upload success
+    if (imageDelArr?.length > 0) {
+      await deleteImgInBucket(imageDelArr);
+    }
 
     return Response.json({
       message: "Update berhasil",
