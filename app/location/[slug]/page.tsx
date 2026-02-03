@@ -69,7 +69,7 @@ export default async function Page({ params }: Props) {
                   {/* Bagian Jam Operasional */}
                   <div className="flex-1 items-center justify-center">
                     <h3 className="text-xs font-bold text-gray-400 uppercase">
-                      Biaya masuk:
+                      Biaya masuk mulai dari:
                     </h3>
                     <p className="text-2xl font-bold mb-4">{formattedPrice}</p>
                     {/* Bagian kontak */}
