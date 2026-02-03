@@ -16,6 +16,9 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "Desa Pemerihan - Official Website",
   description: "Portal resmi Desa Pemerihan Kabupaten Pesisir Barat",
+  verification: {
+    google: "G-k08jOBi9CYB78SuNIBj3LQqXbuC0FYjYFaEJyxypk",
+  },
 };
 
 export default function RootLayout({
