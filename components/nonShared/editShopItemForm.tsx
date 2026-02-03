@@ -47,6 +47,40 @@ export default function EditShopItemForm({ initialData }: ShopItemFormProps) {
   };
 
   const handleProcess = async () => {
+    const validFiles = files.filter((f): f is File => !!f);
+    // validasi size file di frontend
+    const MAX_SIZE_MB = 5;
+    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024; // 5.242.880 bytes
+
+    const isFileTooLarge = validFiles.some((f) => f.size > MAX_SIZE_BYTES);
+
+    if (isFileTooLarge) {
+      alert(
+        `Salah satu file melebihi ${MAX_SIZE_MB} MB. Harap kompres atau pilih gambar lain.`,
+      );
+      return;
+    }
+
+    // validasi
+    if (name.length < 2) {
+      alert(`Nama minimal 2 huruf!`);
+      return;
+    }
+    if (!contact.startsWith("08") && !contact.startsWith("62")) {
+      alert("Nomor telepon wajib di awali dengan 08");
+    }
+    if (contact.length < 10) {
+      alert(`Nomor whatsapp minimal 10 angka!`);
+      return;
+    }
+    if (contact.length > 13) {
+      alert(`Nomor whatsapp maksimal 12 angka!`);
+      return;
+    }
+    if (price < 100) {
+      alert("Harga minimal 100 Rupiah");
+      return;
+    }
     setIsLoading(true);
 
     try {

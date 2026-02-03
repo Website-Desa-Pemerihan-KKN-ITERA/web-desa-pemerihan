@@ -89,13 +89,6 @@ export async function PUT(
     }
   }
 
-  if (
-    typeof result.data.featuredImageUrl === "string" &&
-    typeof oldArticle.featuredImageUrl === "string"
-  ) {
-    await deleteImgInBucket([oldArticle.featuredImageUrl]);
-  }
-
   try {
     const updatedArticle = await prisma.article.update({
       where: { id: articleId },
@@ -109,6 +102,13 @@ export async function PUT(
       },
     });
 
+    // moved here, cause i notice its must be deleted just after the update success
+    if (
+      typeof result.data.featuredImageUrl === "string" &&
+      typeof oldArticle.featuredImageUrl === "string"
+    ) {
+      await deleteImgInBucket([oldArticle.featuredImageUrl]);
+    }
     return Response.json({
       message: "Update berhasil",
       data: updatedArticle,

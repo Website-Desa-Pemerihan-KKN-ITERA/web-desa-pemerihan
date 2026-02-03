@@ -10,9 +10,9 @@ import { mergeImages } from "@/helpers/imgReplaceCompare";
 const MAX_IMAGES = 5;
 
 const ShopItem = z.object({
-  name: z.string(),
-  price: z.coerce.number(),
-  contact: z.string(),
+  name: z.string().min(2),
+  price: z.coerce.number().min(3),
+  contact: z.string().min(10).max(13),
   owner: z.string(),
   description: z.string(),
   imagesUrl: z.array(z.string()).max(MAX_IMAGES),
@@ -98,10 +98,6 @@ export async function PUT(
     oldItem.imagesUrl,
   );
 
-  if (imageDelArr?.length > 0) {
-    await deleteImgInBucket(imageDelArr);
-  }
-
   let dialNum = result.data.contact;
   if (dialNum.startsWith("0")) {
     dialNum = "62" + dialNum.slice(1);
@@ -120,6 +116,11 @@ export async function PUT(
         imagesUrl: imageArr,
       },
     });
+
+    // moved here cause i think it is safer to delete after upload success
+    if (imageDelArr?.length > 0) {
+      await deleteImgInBucket(imageDelArr);
+    }
 
     return Response.json({
       message: "Update berhasil",

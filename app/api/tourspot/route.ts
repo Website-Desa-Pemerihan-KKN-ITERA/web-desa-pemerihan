@@ -12,7 +12,7 @@ const MAX_IMAGES = 5;
 const TourSpot = z.object({
   name: z.string().min(1),
   entryFee: z.number(),
-  contact: z.string().min(10).max(13),
+  contact: z.string().min(10).max(13).startsWith("08"),
   owner: z.string().min(1),
   openTimeFrom: z.iso.datetime(),
   openTimeTo: z.iso.datetime(), // no less than function so i dont handle case where openTimeTo are less than openTimeFrom,

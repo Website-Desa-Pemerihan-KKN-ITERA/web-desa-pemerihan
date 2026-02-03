@@ -57,9 +57,14 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || "Request failed");
-      }
 
+        const message =
+          typeof errorData.error === "string"
+            ? errorData.error
+            : errorData.error?.message || "Request failed";
+
+        throw new Error(message);
+      }
       alert("Artikel berhasil diperbarui!");
       router.push("/admin/dashboard/article");
       router.refresh();
@@ -71,6 +76,35 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
   };
 
   const handleProcess = async () => {
+    if (file) {
+      // validasi size file di frontend
+      const MAX_SIZE_MB = 5;
+      const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024; // 5.242.880 MAX_SIZE_BYTE
+      const isFileTooLarge = file.size > MAX_SIZE_BYTES;
+
+      if (isFileTooLarge) {
+        alert(
+          `Salah satu file melebihi ${MAX_SIZE_MB} MB. Harap kompres atau pilih gambar lain.`,
+        );
+        return;
+      }
+    }
+
+    if (title.length < 5) {
+      alert(`Nama minimal 5 huruf!`);
+      return;
+    }
+
+    if (shortDescription.length < 5) {
+      alert("Deskripsi singkat minimal 5 huruf");
+      return;
+    }
+
+    if (value.replace(/<(.|\n)*?>/g, "").trim().length < 5) {
+      alert("Isi artikel minimal 5 karakter");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
