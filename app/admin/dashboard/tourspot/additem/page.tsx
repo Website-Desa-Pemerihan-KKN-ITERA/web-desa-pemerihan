@@ -115,11 +115,14 @@ export default function Page() {
       alert(`Nama minimal 1 huruf!`);
       return;
     }
+    if (!contact.startsWith("08") && !contact.startsWith("62")) {
+      alert("Nomor telepon wajib di awali dengan 08");
+    }
     if (contact.length < 10) {
       alert(`Nomor whatsapp minimal 10 angka!`);
       return;
     }
-    if (contact.length > 12) {
+    if (contact.length > 13) {
       alert(`Nomor whatsapp maksimal 12 angka!`);
       return;
     }
