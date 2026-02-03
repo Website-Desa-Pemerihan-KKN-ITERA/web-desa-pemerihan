@@ -10,6 +10,8 @@ const fromRequest = z.object({
   password: z.string().min(5),
 });
 
+// please add jwt validation here or at the page
+// - sinavarasina
 export async function POST(req: Request) {
   const result = await validateBody(req, fromRequest);
   if (!result.success) {

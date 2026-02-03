@@ -6,7 +6,6 @@ import { getPresignedUploadUrl } from "@/libs/awsS3Action";
 import { IoSend } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { Content } from "next/font/google";
 
 // kode ini gunanya biar react quill gk dirender secara ssr di development biar gk error
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -81,7 +80,10 @@ export default function Page() {
       return;
     }
 
-    // gw gatau cara cek content
+    if (value.replace(/<(.|\n)*?>/g, "").trim().length < 5) {
+      alert("Isi artikel minimal 5 karakter");
+      return;
+    }
 
     setIsLoading(true);
 

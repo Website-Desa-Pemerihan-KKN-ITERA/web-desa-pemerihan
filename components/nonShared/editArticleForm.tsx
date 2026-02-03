@@ -100,7 +100,10 @@ export default function EditArticleForm({ initialData }: ArticleFormProps) {
       return;
     }
 
-    // gw gatau cara cek content (gaada variable bernama content soalnya)
+    if (value.replace(/<(.|\n)*?>/g, "").trim().length < 5) {
+      alert("Isi artikel minimal 5 karakter");
+      return;
+    }
 
     setIsLoading(true);
 
