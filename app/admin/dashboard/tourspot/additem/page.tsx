@@ -81,7 +81,7 @@ export default function Page() {
       }
 
       alert("Berhasil terkirim");
-      router.push("/admin/dashboard/shop");
+      router.push("/admin/dashboard/tourspot");
     } catch (err) {
       alert("Gagal terkirim");
       console.error(err);

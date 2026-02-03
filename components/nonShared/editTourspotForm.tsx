@@ -178,7 +178,7 @@ export default function EditTourshopForm({ initialData }: ShopItemFormProps) {
       if (!res.ok) throw new Error("Update gagal");
 
       alert("Item berhasil diperbarui!");
-      router.push("/admin/dashboard/shop");
+      router.push("/admin/dashboard/tourspot");
       router.refresh();
     } catch (err) {
       console.error(err);
