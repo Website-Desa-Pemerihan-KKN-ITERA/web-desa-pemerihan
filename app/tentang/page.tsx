@@ -6,34 +6,14 @@ export default function TentangPage() {
   // Gallery Images Data
   const galleryImages = [
     {
-      src: "https://images.unsplash.com/photo-1593857389276-7c794900c90f?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      alt: "Traditional Village House",
-      caption: "Rumah Adat Desa",
+      src: "images/Lapangan Kantor Desa.webp",
+      alt: "Lapangan Kantor Desa",
+      caption: "Lapangan Kantor Desa",
     },
     {
-      src: "https://images.unsplash.com/photo-1516298773066-c48f8e9bd92b?w=800&auto=format&fit=crop",
-      alt: "Honey Farm",
-      caption: "Peternakan Madu",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&auto=format&fit=crop",
-      alt: "Mosque",
-      caption: "Masjid Desa",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&auto=format&fit=crop",
-      alt: "Village Office",
-      caption: "Kantor Desa",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1497250681960-ef046c08a56e?w=800&auto=format&fit=crop",
-      alt: "Health Center",
-      caption: "Puskesmas",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1511497584788-876760111969?w=800&auto=format&fit=crop",
-      alt: "Forest View",
-      caption: "Hutan Damar",
+      src: "/images/tnbbs.jpeg",
+      alt: "TNBBS",
+      caption: "Taman Nasional Bukit Barisan Selatan",
     },
   ];
 
@@ -97,7 +77,7 @@ export default function TentangPage() {
           </div>
           <div className="relative">
             <img
-              src="https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&auto=format&fit=crop"
+              src="/images/Hero.webp"
               alt="Village Landscape"
               className="rounded-xl shadow-lg w-full h-[400px] object-cover"
             />
@@ -174,51 +154,49 @@ export default function TentangPage() {
         </div>
       </section>
 
-      {/* Statistics / Infographic Section */}
-      <section className="bg-gradient-to-r from-[#2D5A27] to-[#1e4019] py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            {/* Population */}
-            <div className="text-center text-white">
-              <div className="w-20 h-20 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                <Users className="w-10 h-10" />
+      {/* Statistics / Infographic Section
+        <section className="bg-gradient-to-r from-[#2D5A27] to-[#1e4019] py-16 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+              <div className="text-center text-white">
+                <div className="w-20 h-20 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                  <Users className="w-10 h-10" />
+                </div>
+                <div className="text-5xl font-bold mb-2 font-['Montserrat']">
+                  7.721
+                </div>
+                <div className="text-green-100 text-lg font-['Inter']">
+                  Jumlah Penduduk
+                </div>
               </div>
-              <div className="text-5xl font-bold mb-2 font-['Montserrat']">
-                7.721
-              </div>
-              <div className="text-green-100 text-lg font-['Inter']">
-                Jumlah Penduduk
-              </div>
-            </div>
 
-            {/* Area */}
-            <div className="text-center text-white">
-              <div className="w-20 h-20 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                <MapPin className="w-10 h-10" />
+              <div className="text-center text-white">
+                <div className="w-20 h-20 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                  <MapPin className="w-10 h-10" />
+                </div>
+                <div className="text-5xl font-bold mb-2 font-['Montserrat']">
+                  15.16
+                </div>
+                <div className="text-green-100 text-lg font-['Inter']">
+                  Luas Wilayah (km²)
+                </div>
               </div>
-              <div className="text-5xl font-bold mb-2 font-['Montserrat']">
-                15.16
-              </div>
-              <div className="text-green-100 text-lg font-['Inter']">
-                Luas Wilayah (km²)
-              </div>
-            </div>
 
-            {/* Tourist Destinations */}
-            <div className="text-center text-white">
-              <div className="w-20 h-20 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                <Camera className="w-10 h-10" />
-              </div>
-              <div className="text-5xl font-bold mb-2 font-['Montserrat']">
-                4
-              </div>
-              <div className="text-green-100 text-lg font-['Inter']">
-                Destinasi Wisata
+              <div className="text-center text-white">
+                <div className="w-20 h-20 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                  <Camera className="w-10 h-10" />
+                </div>
+                <div className="text-5xl font-bold mb-2 font-['Montserrat']">
+                  4
+                </div>
+                <div className="text-green-100 text-lg font-['Inter']">
+                  Destinasi Wisata
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      */}
 
       {/* Gallery Section */}
       <section className="bg-gray-50 py-16 md:py-24">
