@@ -30,8 +30,7 @@ export default function Page() {
 
       router.push("/admin/dashboard/article");
     } catch (err) {
-      console.error(err);
-      alert("Error saat register");
+      router.push("/auth/login");
     } finally {
       setIsLoading(false);
     }
