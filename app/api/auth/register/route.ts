@@ -3,6 +3,7 @@ import prisma from "@/libs/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
 import { validateBody } from "@/helpers/requestHelper";
+import { validateJwtAuthHelper } from "@/helpers/authHelper";
 
 // zod type validation
 const fromRequest = z.object({
@@ -10,8 +11,6 @@ const fromRequest = z.object({
   password: z.string().min(5),
 });
 
-// please add jwt validation here or at the page
-// - sinavarasina
 export async function POST(req: Request) {
   const result = await validateBody(req, fromRequest);
   if (!result.success) {
@@ -19,6 +18,11 @@ export async function POST(req: Request) {
       { error: result.error },
       { status: result.error.status },
     );
+  }
+
+  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+  if (!jwt.success) {
+    return Response.json({ error: jwt.error }, { status: jwt.error.status });
   }
 
   // hash password
