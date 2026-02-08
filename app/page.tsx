@@ -95,7 +95,7 @@ export default function HomePage() {
               >
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
-                  src="https://www.youtube.com/embed/ECbsWJ7V3BI?si=9AiznK_liyqXOiU2"
+                  src="https://www.youtube.com/embed/jrV17BRT6qM"
                   title="Video Desa Pemerihan"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
