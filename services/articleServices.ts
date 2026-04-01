@@ -2,11 +2,9 @@ import { Article } from "@/generated/prisma/client";
 import {
   countArticle,
   findArticleList,
-  findUniqueSlug,
+  findUniqueUser,
   pushArticle,
 } from "@/repository/articleRepository";
-import prisma from "@/libs/prisma";
-import { Prisma } from "@/generated/prisma/client";
 import { generateSlug } from "@/helpers/generateSlugHelper";
 
 type getArticleListResult =
@@ -83,10 +81,7 @@ export async function saveArticle(
   shortDescription: string,
 ): Promise<saveArticleResult> {
   // checking if the user are in the db
-  const userExists = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-
+  const userExists = await findUniqueUser(userId);
   if (!userExists) {
     return {
       success: false,
@@ -98,44 +93,28 @@ export async function saveArticle(
   // generate slug from title
   const finalSlug = generateSlug(title);
 
-  // check if slug is already exist and throw error
-  const checkSlugExist = await findUniqueSlug(finalSlug);
-  if (checkSlugExist) {
+  // push new article to db
+  const dbResult = await pushArticle(
+    title,
+    finalSlug,
+    content,
+    featuredImageUrl,
+    shortDescription,
+  );
+  if (!dbResult.success) {
+    if (dbResult.code === "UNIQUE_CONSTRAINT_FAILED") {
+      return {
+        success: false,
+        error: "SLUG_ALREADY_EXISTS",
+        message: "A record with the same unique field already exists.",
+      };
+    }
+
     return {
       success: false,
-      error: "SLUG_ALREADY_EXISTS",
-      message:
-        "The generated slug already exists. Please use a different title.",
+      error: "DATABASE_ERROR",
+      message: "An unexpected database error occurred.",
     };
-  }
-
-  // push new article to db
-  try {
-    await pushArticle(
-      title,
-      finalSlug,
-      content,
-      featuredImageUrl,
-      shortDescription,
-    );
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        case "P2002": // unique constraint
-          return {
-            success: false,
-            error: "SLUG_ALREADY_EXISTS",
-            message: "A record with the same unique field already exists.",
-          };
-
-        default:
-          return {
-            success: false,
-            error: "DATABASE_ERROR",
-            message: "An unexpected database error occurred.",
-          };
-      }
-    }
   }
 
   return {

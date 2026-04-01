@@ -1,10 +1,22 @@
-import { countArticle, findArticleList } from "@/repository/articleRepository";
+import {
+  countArticle,
+  findArticleList,
+  findUniqueUser,
+  pushArticle,
+} from "@/repository/articleRepository";
 import { Article } from "@/generated/prisma/client";
-import { getArticleList } from "./articleServices";
+import { getArticleList, saveArticle } from "./articleServices";
+import { generateSlug } from "@/helpers/generateSlugHelper";
 
 jest.mock("@/repository/articleRepository", () => ({
   countArticle: jest.fn(),
   findArticleList: jest.fn(),
+  findUniqueUser: jest.fn(),
+  pushArticle: jest.fn(),
+}));
+
+jest.mock("@/helpers/generateSlugHelper", () => ({
+  generateSlug: jest.fn(),
 }));
 
 describe("getArticleList Service", () => {
@@ -81,5 +93,114 @@ describe("getArticleList Service", () => {
     await expect(getArticleList(1, 10)).rejects.toThrow(
       "Database connection lost",
     );
+  });
+});
+
+describe("saveArticle Service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("harus return success true jika semua proses berhasil", async () => {
+    (findUniqueUser as jest.Mock).mockResolvedValue({ id: 1 });
+    (generateSlug as jest.Mock).mockReturnValue("test-slug");
+    (pushArticle as jest.Mock).mockResolvedValue({ success: true });
+
+    const result = await saveArticle(
+      1,
+      "Test Title",
+      "Test Content",
+      "image.jpg",
+      "short desc",
+    );
+
+    expect(findUniqueUser).toHaveBeenCalledWith(1);
+    expect(generateSlug).toHaveBeenCalledWith("Test Title");
+    expect(pushArticle).toHaveBeenCalledWith(
+      "Test Title",
+      "test-slug",
+      "Test Content",
+      "image.jpg",
+      "short desc",
+    );
+
+    expect(result).toEqual({
+      success: true,
+    });
+  });
+
+  it("harus return USER_NOT_FOUND jika user tidak ada", async () => {
+    (findUniqueUser as jest.Mock).mockResolvedValue(null);
+
+    const result = await saveArticle(
+      999,
+      "Test Title",
+      "Test Content",
+      "image.jpg",
+      "short desc",
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "USER_NOT_FOUND",
+      message: "The specified user was not found.",
+    });
+
+    expect(pushArticle).not.toHaveBeenCalled();
+  });
+
+  it("harus return SLUG_ALREADY_EXISTS jika terjadi unique constraint error", async () => {
+    (findUniqueUser as jest.Mock).mockResolvedValue({ id: 1 });
+    (generateSlug as jest.Mock).mockReturnValue("duplicate-slug");
+    (pushArticle as jest.Mock).mockResolvedValue({
+      success: false,
+      code: "UNIQUE_CONSTRAINT_FAILED",
+    });
+
+    const result = await saveArticle(
+      1,
+      "Test Title",
+      "Test Content",
+      "image.jpg",
+      "short desc",
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "SLUG_ALREADY_EXISTS",
+      message: "A record with the same unique field already exists.",
+    });
+  });
+
+  it("harus return DATABASE_ERROR jika terjadi error selain unique constraint", async () => {
+    (findUniqueUser as jest.Mock).mockResolvedValue({ id: 1 });
+    (generateSlug as jest.Mock).mockReturnValue("test-slug");
+    (pushArticle as jest.Mock).mockResolvedValue({
+      success: false,
+      code: "UNKNOWN_ERROR",
+    });
+
+    const result = await saveArticle(
+      1,
+      "Test Title",
+      "Test Content",
+      "image.jpg",
+      "short desc",
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "DATABASE_ERROR",
+      message: "An unexpected database error occurred.",
+    });
+  });
+
+  it("harus throw error jika dependency melempar exception", async () => {
+    const error = new Error("DB connection failed");
+    (findUniqueUser as jest.Mock).mockRejectedValue(error);
+
+    await expect(
+      saveArticle(1, "Test", "Content", "img.jpg", "desc"),
+    ).rejects.toThrow("DB connection failed");
   });
 });
