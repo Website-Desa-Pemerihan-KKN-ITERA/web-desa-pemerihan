@@ -24,7 +24,7 @@ describe("getArticleList Service", () => {
     jest.clearAllMocks();
   });
 
-  it("harus mengembalikan daftar artikel dan metadata sukses pada skenario normal", async () => {
+  it("should return article list and success metadata in normal scenario", async () => {
     const mockArticles = [
       { id: "1", title: "Artikel 1" },
       { id: "2", title: "Artikel 2" },
@@ -50,7 +50,7 @@ describe("getArticleList Service", () => {
     });
   });
 
-  it("harus mengembalikan response 404 jika halaman (page) melebihi total halaman (totalPages)", async () => {
+  it("should return 404 response if page exceeds total pages", async () => {
     const mockDataCount = 5;
     const page = 4;
     const limit = 2;
@@ -69,7 +69,7 @@ describe("getArticleList Service", () => {
     });
   });
 
-  it("harus mengembalikan sukses dengan array kosong jika database kosong (dataCount = 0)", async () => {
+  it("should return success with empty array if database is empty (dataCount = 0)", async () => {
     const page = 2;
     const limit = 10;
 
@@ -86,7 +86,7 @@ describe("getArticleList Service", () => {
     });
   });
 
-  it("harus melempar error (throw) jika eksekusi database (repository) gagal", async () => {
+  it("should throw error if database (repository) execution fails", async () => {
     const dbError = new Error("Database connection lost");
     (findArticleList as jest.Mock).mockRejectedValue(dbError);
 
@@ -101,7 +101,7 @@ describe("saveArticle Service", () => {
     jest.clearAllMocks();
   });
 
-  it("harus return success true jika semua proses berhasil", async () => {
+  it("should return success true if all processes succeed", async () => {
     (findUniqueUser as jest.Mock).mockResolvedValue({ id: 1 });
     (generateSlug as jest.Mock).mockReturnValue("test-slug");
     (pushArticle as jest.Mock).mockResolvedValue({ success: true });
@@ -129,7 +129,7 @@ describe("saveArticle Service", () => {
     });
   });
 
-  it("harus return USER_NOT_FOUND jika user tidak ada", async () => {
+  it("should return USER_NOT_FOUND if user does not exist", async () => {
     (findUniqueUser as jest.Mock).mockResolvedValue(null);
 
     const result = await saveArticle(
@@ -149,7 +149,7 @@ describe("saveArticle Service", () => {
     expect(pushArticle).not.toHaveBeenCalled();
   });
 
-  it("harus return SLUG_ALREADY_EXISTS jika terjadi unique constraint error", async () => {
+  it("should return SLUG_ALREADY_EXISTS if unique constraint error occurs", async () => {
     (findUniqueUser as jest.Mock).mockResolvedValue({ id: 1 });
     (generateSlug as jest.Mock).mockReturnValue("duplicate-slug");
     (pushArticle as jest.Mock).mockResolvedValue({
@@ -172,7 +172,7 @@ describe("saveArticle Service", () => {
     });
   });
 
-  it("harus return DATABASE_ERROR jika terjadi error selain unique constraint", async () => {
+  it("should return DATABASE_ERROR if error other than unique constraint occurs", async () => {
     (findUniqueUser as jest.Mock).mockResolvedValue({ id: 1 });
     (generateSlug as jest.Mock).mockReturnValue("test-slug");
     (pushArticle as jest.Mock).mockResolvedValue({
@@ -195,7 +195,7 @@ describe("saveArticle Service", () => {
     });
   });
 
-  it("harus throw error jika dependency melempar exception", async () => {
+  it("should throw error if dependency throws exception", async () => {
     const error = new Error("DB connection failed");
     (findUniqueUser as jest.Mock).mockRejectedValue(error);
 
