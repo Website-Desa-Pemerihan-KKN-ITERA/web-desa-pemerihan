@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "studio": "prisma studio",
-    "format": "prettier -w ."
+    "format": "prettier -w .",
+    "test": "jest"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",
