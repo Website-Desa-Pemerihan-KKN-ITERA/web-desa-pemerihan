@@ -1,5 +1,8 @@
 import { Article } from "@/generated/prisma/client";
 import { countArticle, findArticleList } from "@/repository/articleRepository";
+import prisma from "@/libs/prisma";
+import { Prisma } from "@/generated/prisma/client";
+import { generateSlug } from "@/helpers/generateSlugHelper";
 
 type getArticleListResult =
   | {
@@ -49,5 +52,94 @@ export async function getArticleList(
     articleList,
     dataCount,
     totalPages,
+  };
+}
+
+type saveArticleResult =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      error: SaveArticleErrorCode;
+      message: string;
+    };
+
+type SaveArticleErrorCode =
+  | "USER_NOT_FOUND"
+  | "SLUG_ALREADY_EXISTS"
+  | "DATABASE_ERROR";
+
+export async function saveArticle(
+  userId: number,
+  title: string,
+  content: string,
+  featuredImageUrl: string,
+  shortDescription: string,
+): Promise<saveArticleResult> {
+  // checking if the user are in the db
+  const userExists = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!userExists) {
+    return {
+      success: false,
+      error: "USER_NOT_FOUND",
+      message: "The specified user was not found.",
+    };
+  }
+
+  // generate slug from title
+  const finalSlug = generateSlug(title);
+
+  // check if slug is already exist and throw error
+  const checkSlugExist = await prisma.article.findUnique({
+    where: {
+      slug: finalSlug,
+    },
+  });
+  if (checkSlugExist) {
+    return {
+      success: false,
+      error: "SLUG_ALREADY_EXISTS",
+      message:
+        "The generated slug already exists. Please use a different title.",
+    };
+  }
+
+  // push new article to db
+  try {
+    await prisma.article.create({
+      data: {
+        title: title,
+        slug: finalSlug,
+        content: content,
+        featuredImageUrl: featuredImageUrl,
+        shortDescription: shortDescription,
+      },
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case "P2002": // unique constraint
+          return {
+            success: false,
+            error: "SLUG_ALREADY_EXISTS",
+            message: "A record with the same unique field already exists.",
+          };
+
+        default:
+          return {
+            success: false,
+            error: "DATABASE_ERROR",
+            message: "An unexpected database error occurred.",
+          };
+      }
+    }
+  }
+
+  return {
+    success: true,
   };
 }

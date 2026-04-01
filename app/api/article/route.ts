@@ -1,12 +1,9 @@
-import prisma from "@/libs/prisma";
-import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
 import { JwtPayload } from "jsonwebtoken";
 import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
-import { generateSlug } from "@/helpers/generateSlugHelper";
 import { deleteImgInBucket } from "@/libs/awsS3Action";
-import { getArticleList } from "@/services/articleServices";
+import { getArticleList, saveArticle } from "@/services/articleServices";
 
 const Article = z.object({
   title: z.string().min(5),
@@ -31,153 +28,148 @@ interface MyJwtPayload extends JwtPayload {
 // POST //
 //////////
 export async function POST(req: Request) {
-  // validate body
-  const result = await validateBody(req, Article);
-
-  if (!result.success) {
-    const { featuredImageUrl } = result.error.body as Partial<
-      z.infer<typeof Article>
-    >;
-
-    if (typeof featuredImageUrl === "string") {
-      await deleteImgInBucket([featuredImageUrl]);
-    }
-    return Response.json(
-      { error: result.error },
-      { status: result.error.status },
-    );
-  }
-
-  // validate the jwt token
-  const decodedJwt = await validateJwtAuthHelper(
-    req.headers.get("authorization"),
-  );
-  if (!decodedJwt.success) {
-    return Response.json(
-      { error: decodedJwt.error, success: decodedJwt.success },
-      { status: decodedJwt.error.status },
-    );
-  }
-
-  // get the payload from jwt
-  const payload = decodedJwt.data as MyJwtPayload;
-
-  // checking if the user are in the db
-  const userExists = await prisma.user.findUnique({
-    where: { id: payload.data.userId },
-  });
-
-  if (!userExists) {
-    return Response.json(
-      { error: "User tidak valid / tidak ditemukan" },
-      { status: 404 },
-    );
-  }
-
-  // generate slug from title
-  const finalSlug = generateSlug(result.data.title);
-
-  // check if slug is already exist and throw error
-  const checkSlugExist = await prisma.article.findUnique({
-    where: {
-      slug: finalSlug,
-    },
-  });
-  if (checkSlugExist) {
-    return Response.json({ error: "Slug sudah ada" }, { status: 409 });
-  }
-
-  // push new article to db
   try {
-    await prisma.article.create({
-      data: {
-        title: result.data.title,
-        slug: finalSlug,
-        content: result.data.content,
-        featuredImageUrl: result.data.featuredImageUrl,
-        shortDescription: result.data.shortDescription,
-      },
-    });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        case "P2002": // unique constraint
-          return Response.json(
-            { error: "Slug already exists" },
-            { status: 409 },
-          );
+    // validate body
+    const result = await validateBody(req, Article);
 
-        default:
-          return Response.json(
-            { error: "Database error", err, code: err.code },
-            { status: 500 },
-          );
+    if (!result.success) {
+      const { featuredImageUrl } = result.error.body as Partial<
+        z.infer<typeof Article>
+      >;
+
+      if (typeof featuredImageUrl === "string") {
+        await deleteImgInBucket([featuredImageUrl]);
       }
+      return Response.json(
+        { error: result.error },
+        { status: result.error.status },
+      );
     }
-  }
 
-  // finally send success response
-  return Response.json(
-    { message: "Article berhasil diupload" },
-    { status: 200 },
-  );
+    // validate the jwt token
+    const decodedJwt = await validateJwtAuthHelper(
+      req.headers.get("authorization"),
+    );
+    if (!decodedJwt.success) {
+      return Response.json(
+        { error: decodedJwt.error, success: decodedJwt.success },
+        { status: decodedJwt.error.status },
+      );
+    }
+
+    // get the payload from jwt
+    const payload = decodedJwt.data as MyJwtPayload;
+
+    try {
+      const save = await saveArticle(
+        payload.data.userId,
+        result.data.title,
+        result.data.content,
+        result.data.featuredImageUrl,
+        result.data.shortDescription,
+      );
+
+      if (!save.success) {
+        let httpStatus = 500;
+        if (save.error === "USER_NOT_FOUND") httpStatus = 404;
+        if (save.error === "SLUG_ALREADY_EXISTS") httpStatus = 409;
+
+        return Response.json({ message: save.message }, { status: httpStatus });
+      }
+    } catch (err) {
+      console.error(err);
+      return Response.json(
+        {
+          error: "Internal Server Error",
+          message: "An unexpected error occurred while processing the request.",
+        },
+        { status: 500 },
+      );
+    }
+
+    // finally send success response
+    return Response.json(
+      { message: "Article berhasil diupload" },
+      { status: 200 },
+    );
+  } catch (err) {
+    console.error(err);
+    return Response.json(
+      {
+        error: "Internal Server Error",
+        message: "An unexpected error occurred while processing the request.",
+      },
+      { status: 500 },
+    );
+  }
 }
 
 /////////
 // GET //
 /////////
 export async function GET(req: Request) {
-  // validate the jwt token
-  const decodedJwt = await validateJwtAuthHelper(
-    req.headers.get("authorization"),
-  );
-  if (!decodedJwt.success) {
-    return Response.json(
-      { error: decodedJwt.error, success: decodedJwt.success },
-      { status: decodedJwt.error.status },
+  try {
+    // validate the jwt token
+    const decodedJwt = await validateJwtAuthHelper(
+      req.headers.get("authorization"),
     );
-  }
+    if (!decodedJwt.success) {
+      return Response.json(
+        { error: decodedJwt.error, success: decodedJwt.success },
+        { status: decodedJwt.error.status },
+      );
+    }
 
-  const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url);
 
-  const queryParams = {
-    page: searchParams.get("page"),
-    limit: searchParams.get("limit"),
-  };
+    const queryParams = {
+      page: searchParams.get("page"),
+      limit: searchParams.get("limit"),
+    };
 
-  const result = listPagingSchema.safeParse(queryParams);
-  if (!result.success) {
-    return Response.json(
-      { error: z.treeifyError(result.error) },
-      { status: 422 },
-    );
-  }
-  const { page, limit } = result.data;
+    const result = listPagingSchema.safeParse(queryParams);
+    if (!result.success) {
+      return Response.json(
+        { error: z.treeifyError(result.error) },
+        { status: 422 },
+      );
+    }
+    const { page, limit } = result.data;
 
-  const articleList = await getArticleList(page, limit);
-  if (!articleList.success) {
+    const articleList = await getArticleList(page, limit);
+    if (!articleList.success) {
+      return Response.json(
+        {
+          error: articleList.error,
+          message: articleList.message,
+          meta: articleList.meta,
+        },
+        { status: articleList.status },
+      );
+    }
+
     return Response.json(
       {
-        error: articleList.error,
-        message: articleList.message,
-        meta: articleList.meta,
+        data: articleList.articleList,
+        meta: {
+          page,
+          limit,
+          totalItems: articleList.dataCount,
+          totalPages: articleList.totalPages,
+          hasNextPage: page < articleList.totalPages,
+          hasPrevPage: page > 1,
+        },
       },
-      { status: articleList.status },
+      { status: 200 },
+    );
+  } catch (err) {
+    console.error(err);
+    return Response.json(
+      {
+        error: "Internal Server Error",
+        message: "An unexpected error occurred while processing the request.",
+      },
+      { status: 500 },
     );
   }
-
-  return Response.json(
-    {
-      data: articleList.articleList,
-      meta: {
-        page,
-        limit,
-        totalItems: articleList.dataCount,
-        totalPages: articleList.totalPages,
-        hasNextPage: page < articleList.totalPages,
-        hasPrevPage: page > 1,
-      },
-    },
-    { status: 200 },
-  );
 }
