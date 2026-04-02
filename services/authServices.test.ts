@@ -23,11 +23,20 @@ describe("login service", () => {
       password: string;
     };
     mock: {
-      userDb: any;
+      userDb: {
+        id: number;
+        name: string;
+        password: string;
+      } | null;
       passwordMatch?: boolean;
       token?: string;
     };
-    expected: any;
+    expected: {
+      success: boolean;
+      error?: string;
+      message?: string;
+      token?: string;
+    };
   };
 
   const testCases: TestCase[] = [

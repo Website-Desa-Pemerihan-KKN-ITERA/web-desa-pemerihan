@@ -70,10 +70,7 @@ export default function TopTourspot() {
         </p>
 
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-r-transparent"></div>
-            <p className="text-gray-600 mt-4">Memuat tempat wisata...</p>
-          </div>
+          <TourspotSkeleton />
         ) : tourspot.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600">Belum ada wisata tersedia</p>
@@ -157,5 +154,43 @@ export default function TopTourspot() {
         </div>
       </div>
     </section>
+  );
+}
+
+function TourspotSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-2xl overflow-hidden shadow-sm"
+        >
+          {/* Image skeleton */}
+          <div className="aspect-square bg-gray-200 animate-pulse" />
+
+          {/* Content */}
+          <div className="p-4 space-y-3">
+            {/* Title */}
+            <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse" />
+
+            {/* Time */}
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-5 bg-gray-200 rounded-full animate-pulse" />
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            </div>
+
+            {/* Days */}
+            <div className="flex items-start gap-2">
+              <div className="h-5 w-5 bg-gray-200 rounded-full animate-pulse mt-0.5" />
+              <div className="flex flex-wrap gap-2">
+                <div className="h-5 w-10 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-5 w-12 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-5 w-8 bg-gray-200 rounded-full animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

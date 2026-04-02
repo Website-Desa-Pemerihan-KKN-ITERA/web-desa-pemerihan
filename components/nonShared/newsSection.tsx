@@ -91,10 +91,7 @@ export default function NewsSection() {
           </p>
 
           {isLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent"></div>
-              <p className="text-gray-600 mt-4">Memuat artikel...</p>
-            </div>
+            <NewsSkeleton />
           ) : newsArticles.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-600">Belum ada artikel tersedia</p>
@@ -141,5 +138,37 @@ export default function NewsSection() {
         </div>
       </section>
     </>
+  );
+}
+
+function NewsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-xl border border-slate-200 overflow-hidden"
+        >
+          {/* Image skeleton */}
+          <div className="w-full h-48 bg-gray-200 animate-pulse"></div>
+
+          <div className="p-6 space-y-4">
+            {/* Date skeleton */}
+            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+
+            {/* Title skeleton */}
+            <div className="space-y-2">
+              <div className="h-5 w-full bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Description skeleton */}
+            <div className="space-y-2">
+              <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
