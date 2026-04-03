@@ -3,6 +3,7 @@ export type ErrorStatus =
   | "INVALID_PASSWORD"
   | "DATABASE_ERROR"
   | "VALIDATION_ERROR"
+  | "SLUG_ALREADY_EXISTS"
   | "UNKNOWN_ERROR";
 
 type HttpErrorConfig = {
@@ -21,6 +22,9 @@ export const ERROR_STATUS_CODE_MAPPER: Record<ErrorStatus, HttpErrorConfig> = {
   },
   VALIDATION_ERROR: {
     statusCode: 400,
+  },
+  SLUG_ALREADY_EXISTS: {
+    statusCode: 409,
   },
   UNKNOWN_ERROR: {
     statusCode: 500,

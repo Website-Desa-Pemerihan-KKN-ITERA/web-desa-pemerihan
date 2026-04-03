@@ -21,12 +21,9 @@ export async function POST(req: Request) {
     // Bussiness logic
     const loginResult = await login(result.data.username, result.data.password);
     if (!loginResult.success) {
-      const errorStatus =
-        ERROR_STATUS_CODE_MAPPER[loginResult.error] ??
-        ERROR_STATUS_CODE_MAPPER.UNKNOWN_ERROR;
       return Response.json(
         { message: loginResult.message },
-        { status: errorStatus.statusCode },
+        { status: ERROR_STATUS_CODE_MAPPER[loginResult.error].statusCode },
       );
     }
 
