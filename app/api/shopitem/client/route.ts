@@ -1,6 +1,6 @@
 import * as z from "zod";
-import prisma from "@/libs/prisma";
-import { Prisma } from "@/generated/prisma/client";
+import { getShopItemList } from "@/services/shopItemServices";
+import { ERROR_STATUS_CODE_MAPPER } from "@/helpers/httpErrorsHelper";
 
 const listPagingSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -11,74 +11,57 @@ const listPagingSchema = z.object({
 // GET //
 /////////
 export async function GET(req: Request) {
-  let itemList;
-  let dataCount = 0;
-  const { searchParams } = new URL(req.url);
-  const queryParams = {
-    page: searchParams.get("page"),
-    limit: searchParams.get("limit"),
-  };
-  const result = listPagingSchema.safeParse(queryParams);
-  if (!result.success) {
-    return Response.json(
-      { error: z.treeifyError(result.error) },
-      { status: 422 },
-    );
-  }
-  const { page, limit } = result.data;
-  const skip = (page - 1) * limit;
-
   try {
-    [itemList, dataCount] = await prisma.$transaction([
-      prisma.shopItems.findMany({
-        skip: skip,
-        take: limit,
-        orderBy: {
-          createdAt: "desc",
-        },
-      }),
-      prisma.shopItems.count(),
-    ]);
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        default:
-          return Response.json(
-            { error: "Database error", err, code: err.code },
-            { status: 500 },
-          );
-      }
+    const { searchParams } = new URL(req.url);
+    const queryParams = {
+      page: searchParams.get("page"),
+      limit: searchParams.get("limit"),
+    };
+
+    const result = listPagingSchema.safeParse(queryParams);
+    if (!result.success) {
+      return Response.json(
+        { error: z.treeifyError(result.error) },
+        { status: 422 },
+      );
     }
-  }
+    const { page, limit } = result.data;
 
-  const totalPages = Math.ceil(dataCount / limit);
+    // Business logic
+    const itemList = await getShopItemList(page, limit);
+    if (!itemList.success) {
+      return Response.json(
+        {
+          error: itemList.error,
+          message: itemList.message,
+          meta: itemList.meta,
+        },
+        { status: ERROR_STATUS_CODE_MAPPER[itemList.error].statusCode },
+      );
+    }
 
-  if (page > totalPages && dataCount > 0) {
+    const safeItems = itemList.itemList.map(({ id: _id, ...rest }) => rest);
+
+    return Response.json({
+      success: true,
+      data: safeItems,
+      meta: {
+        page,
+        limit,
+        totalItems: itemList.dataCount,
+        totalPages: itemList.totalPages,
+        hasNextPage: page < itemList.totalPages,
+        hasPrevPage: page > 1,
+      },
+    });
+  } catch (err) {
+    console.error(err);
     return Response.json(
       {
-        error: "Halaman tidak ditemukan",
-        message: `Hanya tersedia ${totalPages} halaman.`,
-        meta: {
-          page,
-          totalPages,
-        },
+        error: "Internal Server Error",
+        message: "An unexpected error occurred while processing the request.",
       },
-      { status: 404 },
+      { status: 500 },
     );
   }
-
-  const safeItem = itemList?.map(({ id, ...rest }) => rest);
-
-  return Response.json({
-    success: true,
-    data: safeItem,
-    meta: {
-      page,
-      limit,
-      totalItems: dataCount,
-      totalPages,
-      hasNextPage: page < totalPages, // untuk mempermudah frontend nanti
-      hasPrevPage: page > 1, // misal ada tombol next/pref page gitu bisa pakai boolean dari sini
-    },
-  });
 }
