@@ -11,7 +11,7 @@ import {
 } from "@/repository/articleRepository";
 import { generateSlug } from "@/helpers/generateSlugHelper";
 import { ErrorStatus } from "@/helpers/httpErrorsHelper";
-import { deleteImgInBucket } from "@/libs/awsS3Action";
+import { deleteImgInBucket, getPresignedDownloadUrl } from "@/libs/awsS3Action";
 
 type getArticleListResult =
   | {
@@ -207,4 +207,31 @@ export async function updateArticle(
   }
 
   return { success: true, data: dbResult.data };
+}
+
+type getArticleBySlugResult =
+  | { success: true; article: Article; imageUrl: string | null }
+  | { success: false; error: ErrorStatus; message: string };
+
+export async function getArticleBySlug(
+  slug: string,
+): Promise<getArticleBySlugResult> {
+  const article = await findArticleBySlug(slug);
+  if (!article) {
+    return {
+      success: false,
+      error: "ARTICLE_NOT_FOUND",
+      message: "Artikel tidak ditemukan.",
+    };
+  }
+
+  let imageUrl: string | null = null;
+  if (article.featuredImageUrl) {
+    const result = await getPresignedDownloadUrl(article.featuredImageUrl);
+    if (result.success && result.url) {
+      imageUrl = result.url;
+    }
+  }
+
+  return { success: true, article, imageUrl };
 }

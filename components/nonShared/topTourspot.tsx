@@ -48,7 +48,6 @@ export default function TopTourspot() {
           );
           setImgArr(collectedImages);
           setTourspot(result.data);
-          console.log(result.data);
         }
       } catch (error) {
         console.error("Error fetching tourspot:", error);

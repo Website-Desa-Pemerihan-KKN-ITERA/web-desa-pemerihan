@@ -1,58 +1,50 @@
-import bcrypt from "bcryptjs";
-import prisma from "@/libs/prisma";
-import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
 import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
+import { registerUser } from "@/services/authServices";
+import { ERROR_STATUS_CODE_MAPPER } from "@/helpers/httpErrorsHelper";
 
-// zod type validation
 const fromRequest = z.object({
   username: z.string().min(5),
   password: z.string().min(5),
 });
 
 export async function POST(req: Request) {
-  const result = await validateBody(req, fromRequest);
-  if (!result.success) {
+  try {
+    const result = await validateBody(req, fromRequest);
+    if (!result.success) {
+      return Response.json(
+        { error: result.error },
+        { status: result.error.status },
+      );
+    }
+
+    const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+    if (!jwt.success) {
+      return Response.json({ error: jwt.error }, { status: jwt.error.status });
+    }
+
+    // Bussiness logic
+    const register = await registerUser(
+      result.data.username,
+      result.data.password,
+    );
+    if (!register.success) {
+      return Response.json(
+        { message: register.message },
+        { status: ERROR_STATUS_CODE_MAPPER[register.error].statusCode },
+      );
+    }
+
+    return Response.json({ message: "User Berhasil Dibuat" });
+  } catch (err) {
+    console.error(err);
     return Response.json(
-      { error: result.error },
-      { status: result.error.status },
+      {
+        error: "Internal Server Error",
+        message: "An unexpected error occurred while processing the request.",
+      },
+      { status: 500 },
     );
   }
-
-  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
-  if (!jwt.success) {
-    return Response.json({ error: jwt.error }, { status: jwt.error.status });
-  }
-
-  // hash password
-  const salt = await bcrypt.genSalt(10);
-  const hash = await bcrypt.hash(result.data.password, salt);
-
-  // push new user with hashed password to db and its (overkill imo) error handling
-  try {
-    await prisma.user.create({
-      data: { name: result.data.username, password: hash },
-    });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        case "P2002": // unique constraint
-          return Response.json(
-            { error: "Username already exists" },
-            { status: 409 },
-          );
-
-        default:
-          return Response.json(
-            { error: "Database error", err, code: err.code },
-            { status: 500 },
-          );
-      }
-    }
-  }
-
-  return Response.json({
-    message: "User Berhasil Dibuat",
-  });
 }

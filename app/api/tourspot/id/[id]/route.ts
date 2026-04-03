@@ -1,15 +1,13 @@
-import prisma from "@/libs/prisma";
-import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
 import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
-import { generateSlug } from "@/helpers/generateSlugHelper";
 import { deleteImgInBucket } from "@/libs/awsS3Action";
-import { mergeImages } from "@/helpers/imgReplaceCompare";
+import { deleteTourSpot, updateTourSpot } from "@/services/tourSpotServices";
+import { ERROR_STATUS_CODE_MAPPER } from "@/helpers/httpErrorsHelper";
 
 const MAX_IMAGES = 5;
 
-const TourSpot = z.object({
+const TourSpotSchema = z.object({
   name: z.string().min(1),
   entryFee: z.number(),
   contact: z.string().min(10).max(13),
@@ -22,199 +20,115 @@ const TourSpot = z.object({
   imagesUrl: z.array(z.string()).max(MAX_IMAGES),
 });
 
-/////////
-// PUT //
-/////////
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  let oldLocation;
-  let newSlug;
-
-  const locationId = parseInt(id);
-  if (isNaN(locationId)) {
-    return Response.json({ error: "ID location tidak valid" }, { status: 400 });
-  }
-
-  const result = await validateBody(req, TourSpot);
-  if (!result.success) {
-    const { imagesUrl } = result.error.body as Partial<
-      z.infer<typeof TourSpot>
-    >;
-    if (Array.isArray(imagesUrl)) {
-      await deleteImgInBucket(imagesUrl);
-    }
-
-    return Response.json(
-      { error: result.error },
-      { status: result.error.status },
-    );
-  }
-
-  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
-  if (!jwt.success) {
-    return Response.json({ error: jwt.error }, { status: jwt.error.status });
-  }
-
   try {
-    oldLocation = await prisma.location.findUnique({
-      where: { id: locationId },
-    });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        default:
-          return Response.json(
-            { error: "Database nya error", code: err.code },
-            { status: 500 },
-          );
-      }
-    }
-  }
+    const { id } = await params;
 
-  if (!oldLocation) {
-    return Response.json(
-      { error: "Tour spot tidak ditemukan" },
-      { status: 404 },
-    );
-  }
-
-  newSlug = oldLocation.slug;
-  if (result.data.name !== oldLocation.name) {
-    newSlug = generateSlug(result.data.name);
-
-    const checkSlug = await prisma.location.findUnique({
-      where: { slug: newSlug },
-    });
-
-    if (checkSlug && checkSlug.id !== locationId) {
+    const locationId = parseInt(id);
+    if (isNaN(locationId)) {
       return Response.json(
-        {
-          error: "Judul ini menghasilkan slug yang sudah dipakai artikel lain",
-        },
-        { status: 409 },
+        { error: "ID location tidak valid" },
+        { status: 400 },
       );
     }
-  }
 
-  const { imageArr, imageDelArr } = mergeImages(
-    MAX_IMAGES,
-    result.data.imagesUrl,
-    oldLocation.imagesUrl,
-  );
-
-  let dialNum = result.data.contact;
-  if (dialNum.startsWith("0")) {
-    dialNum = "62" + dialNum.slice(1);
-  }
-
-  try {
-    const updatedLocation = await prisma.location.update({
-      where: { id: locationId },
-      data: {
-        name: result.data.name,
-        entryFee: result.data.entryFee,
-        slug: newSlug,
-        contact: dialNum,
-        owner: result.data.owner,
-        openTimeFrom: result.data.openTimeFrom,
-        openTimeTo: result.data.openTimeTo,
-        openDay: result.data.openDay,
-        mapsUrl: result.data.mapsUrl,
-        description: result.data.description,
-        imagesUrl: imageArr,
-      },
-    });
-
-    // moved here cause i think it is safer to delete after upload success
-    if (imageDelArr?.length > 0) {
-      await deleteImgInBucket(imageDelArr);
-    }
-
-    return Response.json({
-      message: "Update berhasil",
-      data: updatedLocation,
-    });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        default:
-          return Response.json(
-            { error: "Database nya error", code: err.code },
-            { status: 500 },
-          );
+    const result = await validateBody(req, TourSpotSchema);
+    if (!result.success) {
+      const { imagesUrl } = result.error.body as Partial<
+        z.infer<typeof TourSpotSchema>
+      >;
+      if (Array.isArray(imagesUrl)) {
+        await deleteImgInBucket(imagesUrl);
       }
+      return Response.json(
+        { error: result.error },
+        { status: result.error.status },
+      );
     }
+
+    const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+    if (!jwt.success) {
+      return Response.json({ error: jwt.error }, { status: jwt.error.status });
+    }
+
+    // Business logic
+    const update = await updateTourSpot(
+      locationId,
+      result.data.name,
+      result.data.entryFee,
+      result.data.contact,
+      result.data.owner,
+      result.data.openTimeFrom,
+      result.data.openTimeTo,
+      result.data.openDay,
+      result.data.mapsUrl,
+      result.data.description,
+      result.data.imagesUrl,
+    );
+
+    if (!update.success) {
+      return Response.json(
+        { message: update.message },
+        { status: ERROR_STATUS_CODE_MAPPER[update.error].statusCode },
+      );
+    }
+
+    return Response.json({ message: "Update berhasil", data: update.data });
+  } catch (err) {
+    console.error(err);
+    return Response.json(
+      {
+        error: "Internal Server Error",
+        message: "An unexpected error occurred while processing the request.",
+      },
+      { status: 500 },
+    );
   }
 }
 
-////////////
-// DELETE //
-////////////
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-
-  const locationId = parseInt(id);
-  if (isNaN(locationId)) {
-    return Response.json({ error: "ID location tidak valid" }, { status: 400 });
-  }
-
-  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
-  if (!jwt.success) {
-    return Response.json({ error: jwt.error }, { status: jwt.error.status });
-  }
-
   try {
-    const tourSpot = await prisma.location.findUnique({
-      where: { id: locationId },
-    });
-    if (!tourSpot) {
-      throw new Error("tour spot nya kosong");
-    }
-    await deleteImgInBucket(tourSpot.imagesUrl);
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        default:
-          return Response.json(
-            { error: "Database nya error", code: err.code },
-            { status: 500 },
-          );
-      }
-    }
-  }
+    const { id } = await params;
 
-  try {
-    const deletedLocation = await prisma.location.delete({
-      where: { id: locationId },
-    });
+    const locationId = parseInt(id);
+    if (isNaN(locationId)) {
+      return Response.json(
+        { error: "ID location tidak valid" },
+        { status: 400 },
+      );
+    }
+
+    const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+    if (!jwt.success) {
+      return Response.json({ error: jwt.error }, { status: jwt.error.status });
+    }
+
+    // Business logic
+    const result = await deleteTourSpot(locationId);
+    if (!result.success) {
+      return Response.json(
+        { message: result.message },
+        { status: ERROR_STATUS_CODE_MAPPER[result.error].statusCode },
+      );
+    }
 
     return Response.json({
       message: "location berhasil dihapus",
-      data: deletedLocation,
+      data: result.data,
     });
   } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        case "P2025":
-          return Response.json(
-            { error: "tour spot tidak ditemukan" },
-            { status: 404 },
-          );
-        default:
-          return Response.json(
-            { error: "Database nya error", code: err.code },
-            { status: 500 },
-          );
-      }
-    }
+    console.error(err);
     return Response.json(
-      { error: "Terjadi kesalahan internal server" },
+      {
+        error: "Internal Server Error",
+        message: "An unexpected error occurred while processing the request.",
+      },
       { status: 500 },
     );
   }

@@ -11,12 +11,15 @@ import {
 import { Article } from "@/generated/prisma/client";
 import {
   deleteArticle,
+  getArticleBySlug,
   getArticleList,
   saveArticle,
   updateArticle,
 } from "./articleServices";
 import { generateSlug } from "@/helpers/generateSlugHelper";
-import { deleteImgInBucket } from "@/libs/awsS3Action";
+import { deleteImgInBucket, getPresignedDownloadUrl } from "@/libs/awsS3Action";
+
+const mockedGetPresignedDownloadUrl = getPresignedDownloadUrl as jest.Mock;
 
 jest.mock("@/repository/articleRepository", () => ({
   countArticle: jest.fn(),
@@ -35,6 +38,7 @@ jest.mock("@/helpers/generateSlugHelper", () => ({
 
 jest.mock("@/libs/awsS3Action", () => ({
   deleteImgInBucket: jest.fn(),
+  getPresignedDownloadUrl: jest.fn(),
 }));
 
 describe("getArticleList Service", () => {
@@ -488,5 +492,81 @@ describe("updateArticle Service", () => {
       message: "An unexpected database error occurred.",
     });
     expect(deleteImgInBucket).not.toHaveBeenCalled();
+  });
+});
+
+describe("getArticleBySlug Service", () => {
+  const mockArticle = {
+    id: 1,
+    title: "Test Article",
+    slug: "test-article",
+    content: "Test content",
+    shortDescription: "Short desc",
+    featuredImageUrl: "image-key.jpg",
+    createdAt: new Date(),
+  } as Article;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return success with article and imageUrl when article is found", async () => {
+    (findArticleBySlug as jest.Mock).mockResolvedValue(mockArticle);
+    mockedGetPresignedDownloadUrl.mockResolvedValue({
+      success: true,
+      url: "https://presigned.url/image-key.jpg",
+    });
+
+    const result = await getArticleBySlug("test-article");
+
+    expect(findArticleBySlug).toHaveBeenCalledWith("test-article");
+    expect(mockedGetPresignedDownloadUrl).toHaveBeenCalledWith(
+      mockArticle.featuredImageUrl,
+    );
+    expect(result).toEqual({
+      success: true,
+      article: mockArticle,
+      imageUrl: "https://presigned.url/image-key.jpg",
+    });
+  });
+
+  it("should return success with null imageUrl when presigned URL request fails", async () => {
+    (findArticleBySlug as jest.Mock).mockResolvedValue(mockArticle);
+    mockedGetPresignedDownloadUrl.mockResolvedValue({ success: false });
+
+    const result = await getArticleBySlug("test-article");
+
+    expect(result).toEqual({
+      success: true,
+      article: mockArticle,
+      imageUrl: null,
+    });
+  });
+
+  it("should return success with null imageUrl and not call presigned URL when featuredImageUrl is empty", async () => {
+    const articleWithoutImage = { ...mockArticle, featuredImageUrl: "" };
+    (findArticleBySlug as jest.Mock).mockResolvedValue(articleWithoutImage);
+
+    const result = await getArticleBySlug("test-article");
+
+    expect(mockedGetPresignedDownloadUrl).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      success: true,
+      article: articleWithoutImage,
+      imageUrl: null,
+    });
+  });
+
+  it("should return ARTICLE_NOT_FOUND when article does not exist", async () => {
+    (findArticleBySlug as jest.Mock).mockResolvedValue(null);
+
+    const result = await getArticleBySlug("non-existent-slug");
+
+    expect(result).toEqual({
+      success: false,
+      error: "ARTICLE_NOT_FOUND",
+      message: "Artikel tidak ditemukan.",
+    });
+    expect(mockedGetPresignedDownloadUrl).not.toHaveBeenCalled();
   });
 });
