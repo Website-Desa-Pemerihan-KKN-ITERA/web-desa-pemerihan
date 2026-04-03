@@ -1,14 +1,18 @@
-import { getArticleData } from "@/services/getArticleData-articlePage";
+import { cache } from "react";
+import { getArticleBySlug } from "@/services/articleServices";
 import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
+const getCachedArticle = cache(getArticleBySlug);
+
 // metadata
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const [article] = await getArticleData(slug);
+  const result = await getCachedArticle(slug);
+  const article = result.success ? result.article : null;
 
   return {
     title: `${article?.title}`,
@@ -23,9 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Page({ params }: Props) {
   const { slug } = await params;
-  const [article, imageUrl] = await getArticleData(slug);
+  const result = await getCachedArticle(slug);
 
-  if (!article) {
+  if (!result.success) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
         <div className="text-center px-4">
@@ -37,6 +41,8 @@ export default async function Page({ params }: Props) {
       </div>
     );
   }
+
+  const { article, imageUrl } = result;
 
   // Fungsi utilitas sederhana untuk membersihkan &nbsp; menjadi spasi biasa
   const cleanContent = (htmlContent: string) => {
@@ -83,7 +89,7 @@ export default async function Page({ params }: Props) {
         {/* CONTENT BODY */}
         <div
           className="prose prose-lg max-w-none prose-neutral break-words whitespace-normal
-                      prose-headings:font-bold prose-headings:text-gray-900 
+                      prose-headings:font-bold prose-headings:text-gray-900
                       prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
                       prose-img:rounded-lg prose-img:shadow-md"
           dangerouslySetInnerHTML={{
