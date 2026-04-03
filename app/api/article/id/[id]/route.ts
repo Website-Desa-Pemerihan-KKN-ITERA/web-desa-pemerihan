@@ -1,10 +1,9 @@
-import prisma from "@/libs/prisma";
-import { Prisma } from "@/generated/prisma/client";
 import * as z from "zod";
 import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
-import { generateSlug } from "@/helpers/generateSlugHelper";
 import { deleteImgInBucket } from "@/libs/awsS3Action";
+import { deleteArticle, updateArticle } from "@/services/articleServices";
+import { ERROR_STATUS_CODE_MAPPER } from "@/helpers/httpErrorsHelper";
 
 const ArticleSchema = z.object({
   title: z.string().min(5),
@@ -13,184 +12,108 @@ const ArticleSchema = z.object({
   featuredImageUrl: z.string().optional(),
 });
 
-/////////
-// PUT //
-/////////
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  let oldArticle;
-  let newSlug;
-
-  // check the id is valid or not
-  const articleId = parseInt(id);
-  if (isNaN(articleId)) {
-    return Response.json({ error: "ID Artikel tidak valid" }, { status: 400 });
-  }
-
-  const result = await validateBody(req, ArticleSchema);
-  if (!result.success) {
-    const { featuredImageUrl } = result.error.body as Partial<
-      z.infer<typeof ArticleSchema>
-    >;
-
-    if (typeof featuredImageUrl === "string") {
-      await deleteImgInBucket([featuredImageUrl]);
-    }
-
-    return Response.json(
-      { error: result.error },
-      { status: result.error.status },
-    );
-  }
-
-  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
-  if (!jwt.success) {
-    return Response.json({ error: jwt.error }, { status: jwt.error.status });
-  }
-
   try {
-    oldArticle = await prisma.article.findUnique({
-      where: { id: articleId },
-    });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        default:
-          return Response.json(
-            { error: "Database nya error", code: err.code },
-            { status: 500 },
-          );
-      }
-    }
-  }
+    const { id } = await params;
 
-  if (!oldArticle) {
-    return Response.json({ error: "Artikel tidak ditemukan" }, { status: 404 });
-  }
-
-  newSlug = oldArticle.slug;
-  if (result.data.title !== oldArticle.title) {
-    newSlug = generateSlug(result.data.title);
-
-    const checkSlug = await prisma.article.findUnique({
-      where: { slug: newSlug },
-    });
-
-    if (checkSlug && checkSlug.id !== articleId) {
+    const articleId = parseInt(id);
+    if (isNaN(articleId)) {
       return Response.json(
-        {
-          error: "Judul ini menghasilkan slug yang sudah dipakai artikel lain",
-        },
-        { status: 409 },
+        { error: "ID Artikel tidak valid" },
+        { status: 400 },
       );
     }
-  }
 
-  try {
-    const updatedArticle = await prisma.article.update({
-      where: { id: articleId },
-      data: {
-        title: result.data.title,
-        content: result.data.content,
-        slug: newSlug,
-        shortDescription: result.data.shortDescription,
-        featuredImageUrl:
-          result.data.featuredImageUrl || oldArticle.featuredImageUrl,
-      },
-    });
-
-    // moved here, cause i notice its must be deleted just after the update success
-    if (
-      typeof result.data.featuredImageUrl === "string" &&
-      typeof oldArticle.featuredImageUrl === "string"
-    ) {
-      await deleteImgInBucket([oldArticle.featuredImageUrl]);
-    }
-    return Response.json({
-      message: "Update berhasil",
-      data: updatedArticle,
-    });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        default:
-          return Response.json(
-            { error: "Database nya error", code: err.code },
-            { status: 500 },
-          );
+    const result = await validateBody(req, ArticleSchema);
+    if (!result.success) {
+      const { featuredImageUrl } = result.error.body as Partial<
+        z.infer<typeof ArticleSchema>
+      >;
+      if (typeof featuredImageUrl === "string") {
+        await deleteImgInBucket([featuredImageUrl]);
       }
+      return Response.json(
+        { error: result.error },
+        { status: result.error.status },
+      );
     }
+
+    const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+    if (!jwt.success) {
+      return Response.json({ error: jwt.error }, { status: jwt.error.status });
+    }
+
+    // Bussiness logic
+    const update = await updateArticle(
+      articleId,
+      result.data.title,
+      result.data.content,
+      result.data.shortDescription,
+      result.data.featuredImageUrl,
+    );
+    if (!update.success) {
+      return Response.json(
+        { message: update.message },
+        { status: ERROR_STATUS_CODE_MAPPER[update.error].statusCode },
+      );
+    }
+
+    return Response.json({ message: "Update berhasil", data: update.data });
+  } catch (err) {
+    console.error(err);
+    return Response.json(
+      {
+        error: "Internal Server Error",
+        message: "An unexpected error occurred while processing the request.",
+      },
+      { status: 500 },
+    );
   }
 }
 
-////////////
-// DELETE //
-////////////
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-
-  const articleId = parseInt(id);
-  if (isNaN(articleId)) {
-    return Response.json({ error: "ID Artikel tidak valid" }, { status: 400 });
-  }
-
-  const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
-  if (!jwt.success) {
-    return Response.json({ error: jwt.error }, { status: jwt.error.status });
-  }
-
   try {
-    const article = await prisma.article.findUnique({
-      where: { id: articleId },
-    });
-    if (!article) {
-      throw new Error("artikel nya kosong");
-    }
-    await deleteImgInBucket([article.featuredImageUrl]);
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        default:
-          return Response.json(
-            { error: "Database nya error", code: err.code },
-            { status: 500 },
-          );
-      }
-    }
-  }
+    const { id } = await params;
 
-  try {
-    const deletedArticle = await prisma.article.delete({
-      where: { id: articleId },
-    });
+    const articleId = parseInt(id);
+    if (isNaN(articleId)) {
+      return Response.json(
+        { error: "ID Artikel tidak valid" },
+        { status: 400 },
+      );
+    }
+
+    const jwt = await validateJwtAuthHelper(req.headers.get("authorization"));
+    if (!jwt.success) {
+      return Response.json({ error: jwt.error }, { status: jwt.error.status });
+    }
+
+    // Bussiness logic
+    const result = await deleteArticle(articleId);
+    if (!result.success) {
+      return Response.json(
+        { message: result.message },
+        { status: ERROR_STATUS_CODE_MAPPER[result.error].statusCode },
+      );
+    }
 
     return Response.json({
       message: "Artikel berhasil dihapus",
-      data: deletedArticle,
+      data: result.data,
     });
   } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (err.code) {
-        case "P2025":
-          return Response.json(
-            { error: "Artikel tidak ditemukan" },
-            { status: 404 },
-          );
-        default:
-          return Response.json(
-            { error: "Database nya error", code: err.code },
-            { status: 500 },
-          );
-      }
-    }
+    console.error(err);
     return Response.json(
-      { error: "Terjadi kesalahan internal server" },
+      {
+        error: "Internal Server Error",
+        message: "An unexpected error occurred while processing the request.",
+      },
       { status: 500 },
     );
   }

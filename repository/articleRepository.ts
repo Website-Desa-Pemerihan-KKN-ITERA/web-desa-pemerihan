@@ -21,6 +21,86 @@ export async function findUniqueUser(userId: number) {
   });
 }
 
+export async function findArticleById(id: number) {
+  return await prisma.article.findUnique({
+    where: { id },
+  });
+}
+
+export async function deleteArticleById(id: number) {
+  try {
+    const deleted = await prisma.article.delete({
+      where: { id },
+    });
+    return { success: true as const, data: deleted };
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case "P2025":
+          return { success: false as const, code: "NOT_FOUND" };
+        default:
+          return { success: false as const, code: "DATABASE_ERROR" };
+      }
+    }
+    console.error("deleteArticleById DB Error:", err);
+    return { success: false as const, code: "DB_UNKNOWN_ERROR" };
+  }
+}
+
+export async function findArticleBySlug(slug: string) {
+  return await prisma.article.findUnique({
+    where: { slug },
+  });
+}
+
+export async function findManyArticleSlug() {
+  return await prisma.article.findMany({
+    select: { slug: true },
+  });
+}
+
+export async function findManyShopSlug() {
+  return await prisma.shopItems.findMany({
+    select: { slug: true },
+  });
+}
+
+export async function findManyLocationSlug() {
+  return await prisma.location.findMany({
+    select: { slug: true },
+  });
+}
+
+export async function updateArticleById(
+  id: number,
+  data: {
+    title: string;
+    content: string;
+    slug: string;
+    shortDescription: string;
+    featuredImageUrl: string;
+  },
+) {
+  try {
+    const updated = await prisma.article.update({
+      where: { id },
+      data,
+    });
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case "P2025":
+          return { success: false as const, code: "NOT_FOUND" };
+        default:
+          return { success: false as const, code: "DATABASE_ERROR" };
+      }
+    }
+    console.error("updateArticleById DB Error:", err);
+    return { success: false as const, code: "DB_UNKNOWN_ERROR" };
+  }
+}
+
 export async function pushArticle(
   title: string,
   slug: string,

@@ -4,6 +4,7 @@ import { validateBody } from "@/helpers/requestHelper";
 import { validateJwtAuthHelper } from "@/helpers/authHelper";
 import { deleteImgInBucket } from "@/libs/awsS3Action";
 import { getArticleList, saveArticle } from "@/services/articleServices";
+import { ERROR_STATUS_CODE_MAPPER } from "@/helpers/httpErrorsHelper";
 
 const Article = z.object({
   title: z.string().min(5),
@@ -58,30 +59,18 @@ export async function POST(req: Request) {
     const payload = decodedJwt.data as MyJwtPayload;
 
     // Bussiness logic
-    try {
-      const save = await saveArticle(
-        payload.data.userId,
-        result.data.title,
-        result.data.content,
-        result.data.featuredImageUrl,
-        result.data.shortDescription,
-      );
+    const save = await saveArticle(
+      payload.data.userId,
+      result.data.title,
+      result.data.content,
+      result.data.featuredImageUrl,
+      result.data.shortDescription,
+    );
 
-      if (!save.success) {
-        let httpStatus = 500;
-        if (save.error === "USER_NOT_FOUND") httpStatus = 404;
-        if (save.error === "SLUG_ALREADY_EXISTS") httpStatus = 409;
-
-        return Response.json({ message: save.message }, { status: httpStatus });
-      }
-    } catch (err) {
-      console.error(err);
+    if (!save.success) {
       return Response.json(
-        {
-          error: "Internal Server Error",
-          message: "An unexpected error occurred while processing the request.",
-        },
-        { status: 500 },
+        { message: save.message },
+        { status: ERROR_STATUS_CODE_MAPPER[save.error].statusCode },
       );
     }
 
@@ -140,7 +129,7 @@ export async function GET(req: Request) {
           message: articleList.message,
           meta: articleList.meta,
         },
-        { status: articleList.status },
+        { status: ERROR_STATUS_CODE_MAPPER[articleList.error].statusCode },
       );
     }
 
