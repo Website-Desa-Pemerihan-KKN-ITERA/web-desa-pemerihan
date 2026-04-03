@@ -53,6 +53,24 @@ export async function findArticleBySlug(slug: string) {
   });
 }
 
+export async function findManyArticleSlug() {
+  return await prisma.article.findMany({
+    select: { slug: true },
+  });
+}
+
+export async function findManyShopSlug() {
+  return await prisma.shopItems.findMany({
+    select: { slug: true },
+  });
+}
+
+export async function findManyLocationSlug() {
+  return await prisma.location.findMany({
+    select: { slug: true },
+  });
+}
+
 export async function updateArticleById(
   id: number,
   data: {
