@@ -3,9 +3,11 @@ import {
   countArticle,
   deleteArticleById,
   findArticleById,
+  findArticleBySlug,
   findArticleList,
   findUniqueUser,
   pushArticle,
+  updateArticleById,
 } from "@/repository/articleRepository";
 import { generateSlug } from "@/helpers/generateSlugHelper";
 import { ErrorStatus } from "@/helpers/httpErrorsHelper";
@@ -147,6 +149,61 @@ export async function deleteArticle(id: number): Promise<deleteArticleResult> {
       error: "DATABASE_ERROR",
       message: "An unexpected database error occurred.",
     };
+  }
+
+  return { success: true, data: dbResult.data };
+}
+
+type updateArticleResult =
+  | { success: true; data: Article }
+  | { success: false; error: ErrorStatus; message: string };
+
+export async function updateArticle(
+  id: number,
+  title: string,
+  content: string,
+  shortDescription: string,
+  featuredImageUrl?: string,
+): Promise<updateArticleResult> {
+  const oldArticle = await findArticleById(id);
+  if (!oldArticle) {
+    return {
+      success: false,
+      error: "ARTICLE_NOT_FOUND",
+      message: "Artikel tidak ditemukan.",
+    };
+  }
+
+  let newSlug = oldArticle.slug;
+  if (title !== oldArticle.title) {
+    newSlug = generateSlug(title);
+    const slugConflict = await findArticleBySlug(newSlug);
+    if (slugConflict && slugConflict.id !== id) {
+      return {
+        success: false,
+        error: "SLUG_ALREADY_EXISTS",
+        message: "Judul ini menghasilkan slug yang sudah dipakai artikel lain.",
+      };
+    }
+  }
+
+  const dbResult = await updateArticleById(id, {
+    title,
+    content,
+    slug: newSlug,
+    shortDescription,
+    featuredImageUrl: featuredImageUrl || oldArticle.featuredImageUrl,
+  });
+  if (!dbResult.success) {
+    return {
+      success: false,
+      error: "DATABASE_ERROR",
+      message: "An unexpected database error occurred.",
+    };
+  }
+
+  if (featuredImageUrl) {
+    await deleteImgInBucket([oldArticle.featuredImageUrl]);
   }
 
   return { success: true, data: dbResult.data };

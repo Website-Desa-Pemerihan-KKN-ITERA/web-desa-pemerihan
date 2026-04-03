@@ -47,6 +47,42 @@ export async function deleteArticleById(id: number) {
   }
 }
 
+export async function findArticleBySlug(slug: string) {
+  return await prisma.article.findUnique({
+    where: { slug },
+  });
+}
+
+export async function updateArticleById(
+  id: number,
+  data: {
+    title: string;
+    content: string;
+    slug: string;
+    shortDescription: string;
+    featuredImageUrl: string;
+  },
+) {
+  try {
+    const updated = await prisma.article.update({
+      where: { id },
+      data,
+    });
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case "P2025":
+          return { success: false as const, code: "NOT_FOUND" };
+        default:
+          return { success: false as const, code: "DATABASE_ERROR" };
+      }
+    }
+    console.error("updateArticleById DB Error:", err);
+    return { success: false as const, code: "DB_UNKNOWN_ERROR" };
+  }
+}
+
 export async function pushArticle(
   title: string,
   slug: string,
